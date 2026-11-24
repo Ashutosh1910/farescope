@@ -296,6 +296,7 @@ export function demoSearch(q) {
       const totalInr = (opt.perPersonInr + cheapestReturnPP) * pax;
       return toFlight(opt, totalInr, q, {
         departureToken: q.return ? encodeToken({ k: opt.key, inr: Math.round(totalInr) }) : null,
+        bookingToken: q.return ? null : encodeToken({ b: opt.key, a: opt.airline.name, p: fx(totalInr, q.currency) }),
       });
     })
   );
@@ -310,7 +311,12 @@ export function demoReturnSearch(q, token) {
   const rets = generateLegOptions(d, o, q.return, q, 'ret');
   const cheapest = Math.min(...rets.map((r) => r.perPersonInr));
   const flights = markBest(
-    rets.map((opt) => toFlight(opt, inr + (opt.perPersonInr - cheapest) * 0.92 * pax, q))
+    rets.map((opt) => {
+      const totalInr = inr + (opt.perPersonInr - cheapest) * 0.92 * pax;
+      return toFlight(opt, totalInr, q, {
+        bookingToken: encodeToken({ b: opt.key, a: opt.airline.name, p: fx(totalInr, q.currency) }),
+      });
+    })
   );
   return { flights, unpriced: 0, insights: null, googleFlightsUrl: null };
 }
@@ -319,6 +325,32 @@ function cheapestDayPrice(o, d, day, q) {
   const rng = rngFrom(`cal|${o.code}|${d.code}|${day}`);
   const pp = basePerPersonInr(o, d) * CABIN_F[q.cabin ?? 'economy'] * dateFactor(day) * (0.72 + rng() * 0.45);
   return { inr: q.oneWay ? pp : pp * 1.85, rng };
+}
+
+// Generic names on purpose: fake prices must never appear under a real company's name.
+const DEMO_SELLERS = ['Travel site A', 'Travel site B', 'Travel site C', 'Travel site D', 'Travel site E'];
+
+export function demoBookingOptions(q, token) {
+  const { b, a, p } = decodeToken(token);
+  if (!b || typeof p !== 'number') throw new ProviderError('Invalid booking token', { status: 400, provider: 'demo' });
+  const rng = rngFrom(`sellers|${b}|${q.depart}|${q.return || ''}`);
+  const options = [{ seller: a, isAirline: true, separateTickets: false, price: p, title: null, extensions: [], baggage: ['1 free carry-on'], phone: null, requests: [] }];
+  for (const name of DEMO_SELLERS) {
+    if (rng() < 0.25) continue;
+    options.push({
+      seller: name,
+      isAirline: false,
+      separateTickets: false,
+      price: Math.round(p * (0.97 + rng() * 0.12)),
+      title: null,
+      extensions: [],
+      baggage: [],
+      phone: null,
+      requests: [],
+    });
+  }
+  options.sort((x, y) => x.price - y.price);
+  return { options, baggage: ['1 free carry-on'] };
 }
 
 export function demoCalendar(q) {

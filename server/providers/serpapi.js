@@ -6,7 +6,7 @@ const ENDPOINT = 'https://serpapi.com/search.json';
 const CABIN = { economy: '1', premium: '2', business: '3', first: '4' };
 const NO_RESULTS = /hasn'?t returned any results/i;
 
-export function buildParams(q, { apiKey, gl = 'in', hl = 'en', departureToken } = {}) {
+export function buildParams(q, { apiKey, gl = 'in', hl = 'en', departureToken, bookingToken } = {}) {
   const p = new URLSearchParams({
     engine: 'google_flights',
     api_key: apiKey,
@@ -25,10 +25,12 @@ export function buildParams(q, { apiKey, gl = 'in', hl = 'en', departureToken } 
   });
   if (q.return) p.set('return_date', q.return);
   if (departureToken) p.set('departure_token', departureToken);
+  if (bookingToken) p.set('booking_token', bookingToken);
   return p;
 }
 
-export async function searchSerpApi(q, opts) {
+/** Calls SerpApi; returns the JSON, or null when Google simply has no results. */
+async function callSerpApi(q, opts) {
   const { fetchImpl = fetch } = opts;
   const url = `${ENDPOINT}?${buildParams(q, opts)}`;
   let res;
@@ -44,12 +46,48 @@ export async function searchSerpApi(q, opts) {
     throw new ProviderError(`SerpApi returned a non-JSON response (HTTP ${res.status})`, { provider: 'serpapi' });
   }
   if (json.error) {
-    if (NO_RESULTS.test(json.error)) return normalizeSerpApi({}, q);
+    if (NO_RESULTS.test(json.error)) return null;
     const status = res.status === 401 ? 401 : res.status === 429 ? 429 : 502;
     throw new ProviderError(`SerpApi: ${json.error}`, { status, provider: 'serpapi' });
   }
   if (!res.ok) throw new ProviderError(`SerpApi HTTP ${res.status}`, { provider: 'serpapi' });
-  return normalizeSerpApi(json, q);
+  return json;
+}
+
+export async function searchSerpApi(q, opts) {
+  return normalizeSerpApi((await callSerpApi(q, opts)) || {}, q);
+}
+
+/** Every seller Google Flights lists for one itinerary (airline + travel sites), cheapest first. */
+export async function bookingOptionsSerpApi(q, token, opts) {
+  return normalizeBookingOptions((await callSerpApi(q, { ...opts, bookingToken: token })) || {});
+}
+
+export function normalizeBookingOptions(json) {
+  const options = [];
+  for (const o of json.booking_options || []) {
+    // Usually one offer for the whole trip ("together"); separate tickets come as departing + returning.
+    const parts = o.together ? [o.together] : [o.departing, o.returning].filter(Boolean);
+    if (!parts.length) continue;
+    const priced = parts.every((p) => typeof p.price === 'number');
+    options.push({
+      seller: [...new Set(parts.map((p) => p.book_with).filter(Boolean))].join(' + ') || 'Unknown seller',
+      isAirline: parts.every((p) => !!p.airline),
+      separateTickets: !o.together || !!o.separate_tickets,
+      price: priced ? parts.reduce((t, p) => t + p.price, 0) : null,
+      title: parts.map((p) => p.option_title).filter(Boolean).join(' · ') || null,
+      extensions: [...new Set(parts.flatMap((p) => p.extensions || []))],
+      baggage: [...new Set(parts.flatMap((p) => p.baggage_prices || []))],
+      phone: parts.map((p) => p.booking_phone).find(Boolean) || null,
+      // Google's redirect: POST post_data to url and it forwards to the seller's page for this offer.
+      requests: parts
+        .map((p) => p.booking_request)
+        .filter((r) => r && /^https:\/\//.test(r.url || ''))
+        .map((r) => ({ url: r.url, postData: r.post_data || '' })),
+    });
+  }
+  options.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
+  return { options, baggage: json.baggage_prices?.together || [] };
 }
 
 const airportOf = (a = {}) => ({ code: a.id || '', name: a.name || '', time: a.time || '' });

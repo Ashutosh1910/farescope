@@ -1,6 +1,6 @@
-import { searchSerpApi } from './providers/serpapi.js';
+import { searchSerpApi, bookingOptionsSerpApi } from './providers/serpapi.js';
 import { tpCalendar, tpExplore } from './providers/travelpayouts.js';
-import { demoSearch, demoReturnSearch, demoCalendar, demoExplore } from './providers/demo.js';
+import { demoSearch, demoReturnSearch, demoBookingOptions, demoCalendar, demoExplore } from './providers/demo.js';
 import { ProviderError } from './providers/errors.js';
 import { estimateTotal, bookUrlFor } from './fees.js';
 import { getAirport, publicAirport } from './airports.js';
@@ -175,6 +175,33 @@ export function createSearchService({ db, config, fees, fetchImpl = fetch, now =
         });
       });
       return enrich(res, q, liveProvider);
+    },
+
+    /** Every seller for one itinerary (needs the flight's booking token). Costs 1 SerpApi search, then cached. */
+    async bookingOptions(raw, { refresh = false } = {}) {
+      const q = parseSearchQuery(raw);
+      const token = String(raw.token || '');
+      if (!token || token.length > 4096) throw new ValidationError('token is required');
+      const res = await cached('booking', liveProvider, { ...q, token }, config.liveCacheMinutes, refresh, async () => {
+        if (liveProvider === 'demo') return demoBookingOptions(q, token);
+        guardQuota();
+        db.logCall('serpapi', now());
+        return bookingOptionsSerpApi(q, token, { apiKey: config.serpapiKey, gl: config.gl, hl: config.hl, fetchImpl });
+      });
+      const pax = { adults: q.adults, children: q.children, infantsSeat: q.infantsSeat, infantsLap: q.infantsLap };
+      const directions = q.return ? 2 : 1;
+      return {
+        ...res,
+        options: res.options.map((o) => ({
+          ...o,
+          estimate: estimateTotal(fees, {
+            price: o.price, currency: q.currency, pax, directions,
+            ...(o.isAirline ? { airline: o.seller } : { seller: o.seller }),
+          }),
+        })),
+        source: liveProvider,
+        query: q,
+      };
     },
 
     async calendar(raw) {

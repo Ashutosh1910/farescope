@@ -59,6 +59,7 @@ const routes = {
   fees: () => fees,
   search: (p) => svc.search(p, { refresh: p.refresh === '1' }),
   return: (p) => svc.returnFlights(p, { refresh: p.refresh === '1' }),
+  booking: (p) => svc.bookingOptions(p, { refresh: p.refresh === '1' }),
   calendar: (p) => svc.calendar(p),
   explore: (p) => svc.explore(p),
   history: (p) => svc.history(p),

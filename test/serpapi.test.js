@@ -41,3 +41,22 @@ test('searchSerpApi treats "no results" as an empty list and other errors as fai
   assert.equal(empty.flights.length, 0);
   await assert.rejects(searchSerpApi(q, { apiKey: 'k', fetchImpl: fake({ error: 'Invalid API key.' }, 401) }), (e) => e.status === 401);
 });
+
+import { normalizeBookingOptions } from '../server/providers/serpapi.js';
+import { bookingFixture } from './fixtures-serpapi.js';
+
+test('booking options: cheapest first, airline flagged, separate tickets combined, unsafe links dropped', () => {
+  const { options, baggage } = normalizeBookingOptions(bookingFixture);
+  assert.deepEqual(options.map((o) => o.seller), ['Trip.com + Kiwi.com', 'IndiGo', 'Goibibo', 'SomeSite']);
+  const [sep, airline, ota, unpriced] = options;
+  assert.equal(sep.price, 6100);
+  assert.equal(sep.separateTickets, true);
+  assert.equal(sep.requests.length, 2);
+  assert.equal(airline.isAirline, true);
+  assert.deepEqual(airline.extensions, ['Saver fare']);
+  assert.deepEqual(ota.requests, [{ url: 'https://www.google.com/travel/clk/f', postData: 'u=abc&tfs=x%3Dy' }]);
+  assert.equal(unpriced.price, null);
+  assert.equal(unpriced.requests.length, 0, 'non-https booking links are dropped');
+  assert.deepEqual(baggage, ['1 free carry-on', '1st checked bag free']);
+  assert.equal(buildParams(q, { apiKey: 'k', bookingToken: 'B' }).get('booking_token'), 'B');
+});

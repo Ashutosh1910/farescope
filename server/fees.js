@@ -1,11 +1,12 @@
 // Pure functions (also bundled for the browser). Loading fees.json from disk lives in fees-file.js.
 
-function findAirline(fees, name) {
+function findEntry(fees, name, group = 'airlines') {
   if (!name) return null;
-  const direct = fees.airlines[name];
+  const table = fees[group] || {};
+  const direct = table[name];
   if (direct) return { name, ...direct };
   const lower = name.toLowerCase();
-  for (const [n, v] of Object.entries(fees.airlines)) {
+  for (const [n, v] of Object.entries(table)) {
     if (n.toLowerCase() === lower) return { name: n, ...v };
   }
   return null;
@@ -15,15 +16,17 @@ function findAirline(fees, name) {
  * Estimate what you'd actually pay: API fare + the airline's payment-page fee.
  * `directions` is 1 for one-way, 2 for a return trip (used by per-sector fees).
  */
-export function estimateTotal(fees, { price, currency, airline, pax, directions = 1 }) {
+export function estimateTotal(fees, { price, currency, airline, seller, pax, directions = 1 }) {
   const base = { fare: price, fee: 0, total: price, applied: false };
   if (price == null) return { ...base, status: 'no-price' };
   if (String(currency).toUpperCase() !== fees.currency) {
     return { ...base, status: 'currency-mismatch', note: `Fees are configured in ${fees.currency}` };
   }
-  const entry = findAirline(fees, airline);
+  // A travel-site offer uses that site's fee; an airline's own offer (or a plain fare) uses the airline's.
+  const name = seller || airline;
+  const entry = seller ? findEntry(fees, seller, 'sellers') : findEntry(fees, airline);
   if (!entry || entry.convenienceFee == null) {
-    return { ...base, status: 'not-configured', note: `No fee configured for ${airline || 'this airline'}` };
+    return { ...base, status: 'not-configured', note: `No fee configured for ${name || 'this airline'}` };
   }
   const paying = pax.adults + pax.children + pax.infantsSeat + (fees.countLapInfants ? pax.infantsLap : 0);
   let units;
@@ -44,5 +47,5 @@ export function estimateTotal(fees, { price, currency, airline, pax, directions 
 }
 
 export function bookUrlFor(fees, airline) {
-  return findAirline(fees, airline)?.bookUrl || null;
+  return findEntry(fees, airline)?.bookUrl || null;
 }

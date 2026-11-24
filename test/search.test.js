@@ -88,3 +88,42 @@ test('travelpayouts path groups cached rows by day', async () => {
   assert.equal(cal.days[`${month}-05`].price, 4200);
   assert.equal(cal.days[`${month}-09`].airline, 'AI');
 });
+
+import { bookingFixture } from './fixtures-serpapi.js';
+
+test('booking options: live call counts against the budget, is cached, and gets fee estimates', async () => {
+  const { config, db, fees } = setup({ SERPAPI_KEY: 'k' });
+  let calls = 0;
+  const fetchImpl = async (url) => {
+    calls++;
+    assert.match(url, /booking_token=TOK/);
+    return { ok: true, status: 200, json: async () => bookingFixture };
+  };
+  const svc = createSearchService({ db, config, fees, fetchImpl });
+  const q = { ...base, return: '', adults: '1', token: 'TOK' };
+  const a = await svc.bookingOptions(q);
+  assert.equal(a.options.length, 4);
+  assert.equal(a.options.find((o) => o.seller === 'IndiGo').estimate.fee, 249, 'airline offer uses the airline fee');
+  assert.equal(a.options.find((o) => o.seller === 'Goibibo').estimate.status, 'not-configured');
+  const b = await svc.bookingOptions(q);
+  assert.equal(b.cached, true);
+  assert.equal(calls, 1);
+  assert.equal(svc.status().quota.usedThisMonth, 1);
+  await assert.rejects(svc.bookingOptions({ ...q, token: '' }), /token/);
+});
+
+test('booking options in demo mode: airline plus generic, clearly fake sellers', async () => {
+  const { config, db, fees } = setup({ DEMO: '1' });
+  const svc = createSearchService({ db, config, fees });
+  const one = { ...base, return: '' };
+  const s = await svc.search(one);
+  const f = s.flights[0];
+  assert.ok(f.bookingToken, 'one-way demo flights carry a booking token');
+  const r = await svc.bookingOptions({ ...one, token: f.bookingToken });
+  assert.equal(r.source, 'demo');
+  assert.ok(r.options.some((o) => o.isAirline && o.seller === f.primaryAirline && o.price === f.price));
+  assert.ok(r.options.filter((o) => !o.isAirline).every((o) => /^Travel site [A-E]$/.test(o.seller)));
+  const rt = await svc.search(base);
+  const ret = await svc.returnFlights({ ...base, token: rt.flights[0].departureToken });
+  assert.ok(ret.flights.every((x) => x.bookingToken), 'return-leg demo flights carry a booking token');
+});

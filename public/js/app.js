@@ -466,6 +466,7 @@ function openDrawer(legs, priced) {
       <div class="total"><span>Estimated total</span><strong>${money(e.total, cur)}</strong></div>
       <p class="fine">${esc(e.note || '')}${e.applied && e.status === 'unverified' ? ' — not yet verified in fees.json' : ''}${e.note ? '. ' : ''}Bags, seats and meals are extra. Prices checked ${esc(timeAgo(v.res.fetchedAt))}${v.res.source === 'demo' ? ' (demo data — not a real fare)' : ''}.</p>
     </div>
+    ${sellersSection(priced)}
     <div class="drawer-actions">
       <a class="btn primary" href="${esc(v.res.googleFlightsUrl || googleFlightsUrl(q))}" target="_blank" rel="noopener">Check on Google Flights</a>
       ${book ? `<a class="btn ghost" href="${esc(book)}" target="_blank" rel="noopener">Airline website</a>` : ''}
@@ -474,6 +475,89 @@ function openDrawer(legs, priced) {
   $('#drawer').hidden = false;
   $('#drawer-backdrop').hidden = false;
   $('#drawer-close').focus();
+  state.drawerFlight = priced;
+  state.sellers = null;
+  $('#load-sellers')?.addEventListener('click', () => loadSellers(priced));
+  // Demo data costs nothing, so load it straight away; live lookups wait for a click.
+  if (priced.bookingToken && state.status?.liveProvider !== 'serpapi') loadSellers(priced);
+}
+
+// ---------------------------------------------------------------- compare sellers (Google Flights booking options)
+function sellersSection(f) {
+  if (!f.bookingToken) return '';
+  const live = state.status?.liveProvider === 'serpapi';
+  return `<section class="sellers" aria-labelledby="sellers-title">
+    <div class="sellers-head"><h3 id="sellers-title">Compare sellers</h3><small>The airline and travel sites selling this exact trip</small></div>
+    <div id="sellers-body">${live
+      ? `<button type="button" class="btn ghost" id="load-sellers">Show prices from travel sites</button>
+         <p class="fine">Uses 1 SerpApi search, then it's cached for a few hours.</p>`
+      : '<div class="skeleton" style="height:120px"></div>'}</div>
+  </section>`;
+}
+
+async function loadSellers(f) {
+  const body = $('#sellers-body');
+  if (!body) return;
+  body.innerHTML = '<div class="skeleton" style="height:120px"></div><p class="fine">Asking Google Flights who sells this trip…</p>';
+  try {
+    const res = await api('booking', { ...state.query, token: f.bookingToken });
+    if (state.drawerFlight !== f) return;
+    state.sellers = res;
+    renderSellers();
+    refreshStatus();
+  } catch (err) {
+    if (state.drawerFlight !== f) return;
+    body.innerHTML = `<p class="fine error-text">Couldn't load sellers: ${esc(err.message)}</p>
+      <button type="button" class="btn ghost sm" id="load-sellers">Try again</button>`;
+    $('#load-sellers').addEventListener('click', () => loadSellers(f));
+  }
+}
+
+function hiddenInputs(postData) {
+  return [...new URLSearchParams(postData)].map(([k, v]) => `<input type="hidden" name="${esc(k)}" value="${esc(v)}">`).join('');
+}
+
+function renderSellers() {
+  const body = $('#sellers-body');
+  const res = state.sellers;
+  if (!body || !res) return;
+  const cur = state.query.currency;
+  const opts = res.options;
+  if (!opts.length) {
+    body.innerHTML = '<p class="fine">Google Flights lists no sellers for this trip right now. Try the links below.</p>';
+    return;
+  }
+  const shown = (o) => (state.showEst && o.estimate?.applied ? o.estimate.total : o.price);
+  const priced = opts.filter((o) => o.price != null);
+  const best = priced.length ? Math.min(...priced.map(shown)) : null;
+  const airline = opts.find((o) => o.isAirline);
+  const sorted = [...opts].sort((a, b) => (shown(a) ?? Infinity) - (shown(b) ?? Infinity));
+  const row = (o) => {
+    const p = shown(o);
+    const isBest = p != null && p === best;
+    const e = o.estimate;
+    const feeText = !e ? '' : e.applied
+      ? (state.showEst ? `fare ${money(o.price, cur)} + fee ${money(e.fee, cur)}` : `≈ ${money(e.total, cur)} with fees`)
+      : state.showEst && e.status === 'not-configured' ? 'fee not set' : '';
+    const meta = [o.title, ...o.extensions].filter(Boolean).join(' · ');
+    const forms = o.requests.length
+      ? o.requests.map((r, k) => `<form method="post" action="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${hiddenInputs(r.postData)}
+          <button type="submit" class="btn ${isBest ? 'primary' : 'ghost'} sm" aria-label="Book with ${esc(o.seller)}${o.requests.length > 1 ? (k ? ', return ticket' : ', outbound ticket') : ''}">${o.requests.length > 1 ? (k ? 'Book return' : 'Book outbound') : 'Book'}</button></form>`).join('')
+      : `<span class="fine">${res.source === 'demo' ? 'Demo' : 'No link'}</span>`;
+    return `<li class="seller ${isBest ? 'best' : ''}">
+      <div class="seller-main"><strong>${esc(o.seller)}</strong>
+        <span class="seller-tags">${o.isAirline ? '<span class="tag good">Airline</span>' : ''}${isBest ? '<span class="tag">Cheapest</span>' : ''}${o.separateTickets ? '<span class="tag warn">Separate tickets</span>' : ''}</span>
+        ${meta ? `<small>${esc(meta)}</small>` : ''}</div>
+      <div class="seller-price"><strong>${p == null ? 'See site' : money(p, cur)}</strong>${feeText ? `<small class="${e?.applied ? 'est' : ''}">${esc(feeText)}</small>` : ''}</div>
+      <div class="seller-book">${forms}</div>
+    </li>`;
+  };
+  const diff = airline?.price != null && best != null ? shown(airline) - best : 0;
+  body.innerHTML = `<p class="sellers-summary">${opts.length} seller${opts.length > 1 ? 's' : ''} · cheapest <strong>${best == null ? '—' : money(best, cur)}</strong>${
+    airline ? (diff > 0 ? ` · ${money(diff, cur)} less than ${esc(airline.seller)}'s own site` : ` · ${esc(airline.seller)}'s own site is the cheapest`) : ''}</p>
+    <ol class="seller-list">${sorted.map(row).join('')}</ol>
+    ${res.baggage?.length ? `<p class="fine">Baggage: ${esc(res.baggage.join(' · '))}</p>` : ''}
+    <p class="fine">${res.source === 'demo' ? 'Demo data with made-up sellers — not real offers. ' : ''}Only sellers that partner with Google Flights appear, so some (e.g. MakeMyTrip, HappyFares) may be missing for a given flight. Prices are totals for all travellers including taxes; a travel site's own fee is added only where set in <code>data/fees.json</code>. Checked ${esc(timeAgo(res.fetchedAt))}.</p>`;
 }
 function closeDrawer() {
   $('#drawer').hidden = true;
@@ -732,6 +816,7 @@ function init() {
     state.showEst = el.showEst.checked;
     store.set('showEst', state.showEst);
     if (view()) { renderFilters(); renderList(); }
+    if (state.sellers && !$('#drawer').hidden) renderSellers();
   });
 
   $$('[data-trip]').forEach((b) => b.addEventListener('click', () => setTrip(b.dataset.trip)));

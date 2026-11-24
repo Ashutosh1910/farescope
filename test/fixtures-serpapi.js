@@ -31,3 +31,15 @@ export const serpFixture = {
   ],
   price_insights: { lowest_price: 4300, price_level: 'low', typical_price_range: [5000, 7500], price_history: [[1764000000, 6000], [1764086400, 5500]] },
 };
+
+// Trimmed shape of a SerpApi booking-options response (fields we consume; post_data shortened).
+export const bookingFixture = {
+  baggage_prices: { together: ['1 free carry-on', '1st checked bag free'] },
+  booking_options: [
+    { together: { book_with: 'Goibibo', price: 7162, marketed_as: ['6E 656'], booking_request: { url: 'https://www.google.com/travel/clk/f', post_data: 'u=abc&tfs=x%3Dy' } } },
+    { together: { book_with: 'IndiGo', airline: true, price: 6584, booking_request: { url: 'https://www.google.com/travel/clk/f', post_data: 'u=def' }, extensions: ['Saver fare'] } },
+    { separate_tickets: true, departing: { book_with: 'Trip.com', price: 3000, booking_request: { url: 'https://www.google.com/travel/clk/f', post_data: 'u=1' } },
+      returning: { book_with: 'Kiwi.com', price: 3100, booking_request: { url: 'https://www.google.com/travel/clk/f', post_data: 'u=2' } } },
+    { together: { book_with: 'SomeSite', option_title: 'Visit site', booking_request: { url: 'javascript:alert(1)', post_data: '' } } },
+  ],
+};

@@ -1,5 +1,5 @@
 {
-  "_readme": "Per-airline fees that search APIs can't see (they only appear on the payment page). Look each one up on the airline's own fees page, fill in amount/per/verified, and re-check every few months. 'per' is one of: passenger, passenger_sector (per passenger per direction), booking. Lap infants are not counted as paying passengers. A null amount means 'not configured yet' and the app will say so instead of guessing.",
+  "_readme": "Per-airline fees that search APIs can't see (they only appear on the payment page). Look each one up on the airline's own fees page, fill in amount/per/verified, and re-check every few months. 'per' is one of: passenger, passenger_sector (per passenger per direction), booking. Lap infants are not counted as paying passengers. A null amount means 'not configured yet' and the app will say so instead of guessing. 'sellers' holds travel sites (Goibibo, Cleartrip…) shown under Compare sellers; their fee is added on top of the price Google Flights lists for them.",
   "currency": "INR",
   "countLapInfants": false,
   "airlines": {
@@ -47,6 +47,74 @@
       "note": "Not configured — check SpiceJet's fees page.",
       "source": null,
       "bookUrl": "https://www.spicejet.com/"
+    }
+  },
+  "sellers": {
+    "Goibibo": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "MakeMyTrip": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "Cleartrip": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "EaseMyTrip": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "Yatra": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "ixigo": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "Paytm Travel": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "HappyFares": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "Trip.com": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "Booking.com": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
+    },
+    "Kiwi.com": {
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check the site's checkout or fee page."
     }
   }
 }

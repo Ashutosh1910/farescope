@@ -60,6 +60,7 @@ export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchI
   app.get('/api/fees', wrap(() => fees));
   app.get('/api/search', wrap((req) => svc.search(req.query, { refresh: req.query.refresh === '1' })));
   app.get('/api/return', wrap((req) => svc.returnFlights(req.query, { refresh: req.query.refresh === '1' })));
+  app.get('/api/booking', wrap((req) => svc.bookingOptions(req.query, { refresh: req.query.refresh === '1' })));
   app.get('/api/calendar', wrap((req) => svc.calendar(req.query)));
   app.get('/api/explore', wrap((req) => svc.explore(req.query)));
   app.get('/api/history', wrap((req) => svc.history(req.query)));

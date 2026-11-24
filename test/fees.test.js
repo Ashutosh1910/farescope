@@ -30,3 +30,11 @@ test('missing or mismatched fee data never invents a number', () => {
 test('airline name lookup is case-insensitive', () => {
   assert.equal(estimateTotal(fees, { price: 1, currency: 'inr', airline: 'indigo', pax }).applied, true);
 });
+
+test('travel-site offers use the seller fee table', () => {
+  const f = { ...fees, sellers: { Goibibo: { convenienceFee: 300, per: 'booking', verified: null } } };
+  const e = estimateTotal(f, { price: 7000, currency: 'INR', seller: 'goibibo', pax });
+  assert.deepEqual([e.fee, e.total, e.applied], [300, 7300, true]);
+  assert.equal(estimateTotal(f, { price: 7000, currency: 'INR', seller: 'Cleartrip', pax }).status, 'not-configured');
+  assert.equal(estimateTotal(f, { price: 7000, currency: 'INR', seller: 'IndiGo', pax }).applied, false, 'airline names are not looked up as sellers');
+});
