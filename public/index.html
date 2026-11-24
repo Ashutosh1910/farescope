@@ -55,13 +55,15 @@
             <input id="to" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="to-list" placeholder="City, airport or Anywhere" spellcheck="false">
             <ul id="to-list" class="ac-list" role="listbox" hidden></ul>
           </div>
-          <div class="field">
-            <label for="depart">Depart</label>
-            <input type="date" id="depart" required>
+          <div class="field date-field" id="depart-field">
+            <span class="field-label" aria-hidden="true">Depart</span>
+            <button type="button" id="depart-btn" class="date-btn" aria-haspopup="dialog" aria-controls="date-picker" aria-expanded="false"></button>
+            <input type="hidden" id="depart">
           </div>
-          <div class="field" id="return-field">
-            <label for="ret">Return</label>
-            <input type="date" id="ret">
+          <div class="field date-field" id="return-field">
+            <span class="field-label" aria-hidden="true">Return</span>
+            <button type="button" id="ret-btn" class="date-btn" aria-haspopup="dialog" aria-controls="date-picker" aria-expanded="false"></button>
+            <input type="hidden" id="ret">
           </div>
           <div class="field pax">
             <label for="pax-btn">Travellers &amp; cabin</label>

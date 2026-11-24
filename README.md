@@ -64,6 +64,7 @@ Free-plan limits:
 
 ## Features
 
+- **Date picker:** a fare calendar showing two months side by side, or a full-screen list of months on a phone. Each day shows its lowest cached one-way fare, with the cheapest days in green and a ★ on the cheapest day of the month. Departure and return are picked as one range, with a hover preview and a nights count. While you pick the return, it shows fares for the return direction. Works fully by keyboard: arrows, Page Up/Down, Home/End, Esc.
 - **Search:** return or one way, airport autocomplete, swap button, up to 9 travellers (adults, children, infants in a seat or on a lap), 4 cabin classes, 6 currencies.
 - **Return trips:** pick an outbound flight, then a return flight. This matches how Google Flights' `departure_token` works.
 - **Filters:** stops (with the cheapest price for each), departure and arrival time of day, max price, max journey time, max layover, no overnight layovers, no separate tickets, airlines (with the cheapest price for each).

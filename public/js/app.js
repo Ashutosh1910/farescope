@@ -2,6 +2,7 @@ import { money, shortMoney, duration, clock, dayDiff, prettyDate, timeAgo, addDa
 import { WINDOWS, emptyFilters, isFiltered, facets, applyFilters, sortFlights, sortSummary, priceOf, SORTS } from './filters.js';
 import { attachAutocomplete, setAirport, resolveCode, ANYWHERE } from './autocomplete.js';
 import { api } from './api.js';
+import { createDatePicker } from './datepicker.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -35,12 +36,13 @@ const el = {
 };
 
 function today() { return new Date().toISOString().slice(0, 10); }
+let datePicker = null; // created in init()
 
 function setTrip(t) {
   state.trip = t;
   $$('[data-trip]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.trip === t)));
   el.retField.classList.toggle('disabled', t === 'oneway');
-  el.ret.disabled = t === 'oneway';
+  datePicker?.refresh();
 }
 
 function paxSummary() {
@@ -107,6 +109,7 @@ async function fillFromUrl() {
   if (p.get('to')) setAirport(el.to, await lookup(p.get('to').toUpperCase()));
   if (p.get('depart')) el.depart.value = p.get('depart');
   if (p.get('return')) { el.ret.value = p.get('return'); setTrip('return'); } else setTrip('oneway');
+  datePicker?.refresh();
   for (const k of Object.keys(state.pax)) if (p.get(k)) state.pax[k] = Math.max(k === 'adults' ? 1 : 0, Number(p.get(k)) || 0);
   if (p.get('cabin')) el.cabin.value = p.get('cabin');
   if (p.get('currency')) el.currency.value = p.get('currency');
@@ -546,6 +549,7 @@ function onCalendarClick(e) {
   }
   q.depart = ds;
   el.depart.value = ds;
+  datePicker?.refresh();
   syncUrl(q);
   runSearch(q);
 }
@@ -676,6 +680,7 @@ async function onExploreClick(e) {
   const depart = b.dataset.date && b.dataset.date >= today() ? b.dataset.date : el.depart.value;
   el.depart.value = depart;
   if (state.trip === 'return') el.ret.value = b.dataset.ret && b.dataset.ret >= depart ? b.dataset.ret : addDays(depart, 5);
+  datePicker?.refresh();
   onSubmit();
 }
 
@@ -706,13 +711,19 @@ function init() {
   attachAutocomplete(el.to, $('#to-list'), { allowAnywhere: true });
 
   const d = addDays(today(), 14);
-  el.depart.min = today();
-  el.ret.min = today();
   el.depart.value = d;
   el.ret.value = addDays(d, 7);
-  el.depart.addEventListener('change', () => {
-    el.ret.min = el.depart.value;
-    if (el.ret.value && el.ret.value < el.depart.value) el.ret.value = addDays(el.depart.value, 7);
+  datePicker = createDatePicker({
+    host: el.form,
+    departInput: el.depart,
+    retInput: el.ret,
+    departBtn: $('#depart-btn'),
+    retBtn: $('#ret-btn'),
+    isReturn: () => state.trip === 'return',
+    setTrip,
+    getRoute: () => ({ from: resolveCode(el.from), to: resolveCode(el.to), currency: el.currency.value, cabin: el.cabin.value }),
+    fetchFares: async (r) => (await api('calendar', { from: r.from, to: r.to, month: r.month, oneWay: 'true', currency: r.currency, cabin: r.cabin })).days,
+    onChange: () => { el.formError.textContent = ''; },
   });
   el.currency.value = store.get('currency', 'INR');
   el.currency.addEventListener('change', () => store.set('currency', el.currency.value));
@@ -746,7 +757,7 @@ function init() {
     if (!el.paxPop.hidden && !e.target.closest('.pax')) togglePax(false);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape' || datePicker?.isOpen()) return;
     if (!$('#drawer').hidden) closeDrawer();
     else if (!el.paxPop.hidden) { togglePax(false); el.paxBtn.focus(); }
   });
