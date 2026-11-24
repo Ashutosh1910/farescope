@@ -23,6 +23,22 @@ Without keys, the app runs on **demo data**. These are fake fares, the same ever
 
 The two keys work independently. For example, you can use live SerpApi search alongside the demo calendar.
 
+## Hosted demo (GitHub Pages)
+
+`.github/workflows/pages.yml` runs the tests on every push and pull request. On every push to `main` it also deploys a **static demo build** to GitHub Pages.
+
+GitHub Pages can only host static files, so it can't run the Express server. The build (`npm run build:static` → `dist/`) bundles the search code into the page so it runs in the browser. The hosted copy **always uses demo data**: a public page must never contain your SerpApi or Travelpayouts key, because anyone could read it from the page source. Price history is kept in each visitor's own browser.
+
+One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**. Then push to `main` (or run the workflow by hand from the Actions tab). The site will be at `https://<user>.github.io/<repo>/`.
+
+To try the static build locally:
+
+```bash
+npm run build:static && npm run preview
+```
+
+For real fares, run the server yourself (above). A server host such as Render, Fly.io or Railway also works; set `SERPAPI_KEY` there as a secret environment variable.
+
 ## Features
 
 - **Search:** return or one way, airport autocomplete, swap button, up to 9 travellers (adults, children, infants in a seat or on a lap), 4 cabin classes, 6 currencies.
@@ -66,8 +82,11 @@ server/
     serpapi.js        Google Flights via SerpApi -> normalized flights
     travelpayouts.js  Aviasales Data API (prices_for_dates) -> calendar / explore
     demo.js           fake data, same every time, for running without keys
-public/               UI written in plain JavaScript (no build step)
+public/               UI written in plain JavaScript (no build step for the server version)
+  js/api.js           calls the server, or the in-browser search code on the static build
   js/filters.js       filter/sort logic with no page code (unit-tested)
+static/backend.js     in-browser search code for the Pages build (demo provider only)
+scripts/build-static.mjs  builds dist/ with esbuild
 data/airports.json    98 airports (all major Indian ones plus international hubs)
 data/fees.json        your fee table
 test/                 node:test suites (npm test)

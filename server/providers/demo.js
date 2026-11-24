@@ -256,10 +256,15 @@ function insightsFor(flights, q) {
   return { lowest, level, typicalRange: [lo, hi], history };
 }
 
-const encodeToken = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+// base64url without Buffer, so this module also runs in the browser build.
+const encodeToken = (obj) =>
+  btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(obj))))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 function decodeToken(token) {
   try {
-    return JSON.parse(Buffer.from(String(token), 'base64url').toString('utf8'));
+    const b64 = String(token).replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     throw new ProviderError('Invalid return-flight token', { status: 400, provider: 'demo' });
   }

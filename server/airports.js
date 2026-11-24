@@ -1,8 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { ROOT } from './config.js';
+// Runs in Node and (bundled) in the browser for the static GitHub Pages build.
+import AIRPORT_DATA from '../data/airports.json' with { type: 'json' };
 
-export const AIRPORTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'airports.json'), 'utf8'));
+export const AIRPORTS = AIRPORT_DATA;
 const BY_CODE = new Map(AIRPORTS.map((a) => [a.code, a]));
 
 export const getAirport = (code) => BY_CODE.get(String(code || '').toUpperCase()) || null;

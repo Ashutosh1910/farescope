@@ -1,10 +1,4 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { ROOT } from './config.js';
-
-export function loadFees(file = path.join(ROOT, 'data', 'fees.json')) {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
+// Pure functions (also bundled for the browser). Loading fees.json from disk lives in fees-file.js.
 
 function findAirline(fees, name) {
   if (!name) return null;

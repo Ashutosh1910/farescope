@@ -1,7 +1,7 @@
 process.env.FARESCOPE_SKIP_DOTENV = '1';
 import { loadConfig } from '../server/config.js';
 import { openDb } from '../server/db.js';
-import { loadFees } from '../server/fees.js';
+import { loadFees } from '../server/fees-file.js';
 
 export const inDays = (n) => {
   const d = new Date();

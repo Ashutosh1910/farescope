@@ -1,6 +1,7 @@
 import { money, shortMoney, duration, clock, dayDiff, prettyDate, timeAgo, addDays, esc, airlineCode, dateOf } from './format.js';
 import { WINDOWS, emptyFilters, isFiltered, facets, applyFilters, sortFlights, sortSummary, priceOf, SORTS } from './filters.js';
 import { attachAutocomplete, setAirport, resolveCode, ANYWHERE } from './autocomplete.js';
+import { api } from './api.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -25,15 +26,6 @@ const state = {
   exploreMonth: null,
 };
 const view = () => (state.phase === 'return' ? state.ret : state.out);
-
-// ---------------------------------------------------------------- API
-async function api(path, params = {}) {
-  const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null)).toString();
-  const res = await fetch(`/api/${path}${qs ? `?${qs}` : ''}`);
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error || `Request failed (${res.status})`);
-  return body;
-}
 
 // ---------------------------------------------------------------- form
 const el = {
@@ -210,7 +202,9 @@ function renderBanner() {
   const v = view();
   const parts = [];
   if (v?.res.source === 'demo' || state.status?.liveProvider === 'demo') {
-    parts.push(`<div class="banner warn" role="note"><strong>Demo fares.</strong> These prices are synthetic, generated so the app works without keys — not real fares. Add <code>SERPAPI_KEY</code> to <code>.env</code> for live Google Flights prices.</div>`);
+    parts.push(state.status?.hosted
+      ? `<div class="banner warn" role="note"><strong>Demo fares.</strong> This hosted copy only has synthetic prices — not real fares. Run FareScope on your own machine with a SerpApi key for live Google Flights prices.</div>`
+      : `<div class="banner warn" role="note"><strong>Demo fares.</strong> These prices are synthetic, generated so the app works without keys — not real fares. Add <code>SERPAPI_KEY</code> to <code>.env</code> for live Google Flights prices.</div>`);
   }
   if (v) {
     const when = timeAgo(v.res.fetchedAt);
@@ -697,7 +691,7 @@ async function refreshStatus() {
   if (s.liveProvider === 'demo') {
     chip.className = 'chip warn';
     chip.textContent = 'Demo data';
-    chip.title = 'No SERPAPI_KEY configured — prices are synthetic';
+    chip.title = s.hosted ? 'Hosted demo — prices are synthetic' : 'No SERPAPI_KEY configured — prices are synthetic';
   } else {
     chip.className = 'chip live';
     chip.textContent = `Live · ${s.quota.usedThisMonth}/${s.quota.monthlyLimit} searches this month`;

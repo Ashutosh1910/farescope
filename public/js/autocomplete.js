@@ -1,4 +1,5 @@
 import { esc } from './format.js';
+import { api } from './api.js';
 
 export const ANYWHERE = { code: 'ANY', city: 'Anywhere', name: 'Cheapest destinations this month', country: '' };
 
@@ -68,8 +69,7 @@ export function attachAutocomplete(input, list, { allowAnywhere = false, onSelec
     let found = [];
     if (q) {
       try {
-        const res = await fetch(`/api/airports?q=${encodeURIComponent(q)}`);
-        found = (await res.json()).airports || [];
+        found = (await api('airports', { q })).airports || [];
       } catch {
         found = [];
       }

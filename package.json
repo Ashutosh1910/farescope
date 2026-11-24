@@ -10,7 +10,9 @@
     "start": "node --disable-warning=ExperimentalWarning server/index.js",
     "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
     "demo": "DEMO=1 node --disable-warning=ExperimentalWarning server/index.js",
-    "test": "node --disable-warning=ExperimentalWarning --test \"test/*.test.js\""
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/*.test.js\"",
+    "build:static": "node scripts/build-static.mjs",
+    "preview": "npx --yes serve@14.2.4 dist"
   },
   "license": "UNLICENSED",
   "dependencies": {
@@ -20,5 +22,8 @@
   "engines": {
     "node": ">=22.13"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "esbuild": "^0.24.2"
+  }
 }

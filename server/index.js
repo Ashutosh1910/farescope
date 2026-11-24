@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { ROOT, loadConfig } from './config.js';
 import { openDb } from './db.js';
-import { loadFees } from './fees.js';
+import { loadFees } from './fees-file.js';
 import { searchAirports } from './airports.js';
 import { createSearchService } from './search.js';
 
