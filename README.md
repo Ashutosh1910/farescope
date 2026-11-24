@@ -14,6 +14,8 @@ cp .env.example .env   # add your keys (optional)
 npm start              # http://localhost:3000
 ```
 
+If you're behind an HTTP proxy, start it with `NODE_USE_ENV_PROXY=1 npm start` (Node 22.21 or newer). Node's built-in `fetch` ignores `HTTPS_PROXY` otherwise.
+
 Without keys, the app runs on **demo data**. These are fake fares, the same every time, so you can try every feature. The UI shows a yellow banner and a "Demo data" label while they're in use. Add keys to get real prices:
 
 | Key | What it powers | Cost |

@@ -349,7 +349,7 @@ function renderList() {
 
 function logo(f) {
   const src = f.logo || f.leg.segments[0].airlineLogo;
-  if (src) return `<img class="logo" src="${esc(src)}" alt="" width="32" height="32" loading="lazy">`;
+  if (src) return `<img class="logo" src="${esc(src)}" alt="" width="32" height="32" loading="lazy" data-code="${esc(airlineCode(f))}">`;
   return `<span class="logo badge" aria-hidden="true">${esc(airlineCode(f))}</span>`;
 }
 
@@ -777,6 +777,17 @@ function init() {
     const open = $('#filters').classList.toggle('open');
     e.currentTarget.setAttribute('aria-expanded', String(open));
   });
+
+  // Airline logos are remote images; if one fails, show the airline-code badge instead of a broken icon.
+  document.addEventListener('error', (e) => {
+    const img = e.target;
+    if (!(img instanceof HTMLImageElement) || !img.classList.contains('logo')) return;
+    const badge = document.createElement('span');
+    badge.className = 'logo badge';
+    badge.setAttribute('aria-hidden', 'true');
+    badge.textContent = img.dataset.code || '✈';
+    img.replaceWith(badge);
+  }, true);
 
   refreshStatus();
   fillFromUrl().then((has) => { if (has) onSubmit(); });
