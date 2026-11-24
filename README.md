@@ -27,7 +27,7 @@ The two keys work independently. For example, you can use live SerpApi search al
 
 ## Hosted demo (GitHub Pages)
 
-`.github/workflows/pages.yml` runs the tests on every push and pull request. On every push to `main` it also deploys a **static demo build** to GitHub Pages.
+`.github/workflows/deploy.yml` runs the tests on every push and pull request. On every push to `main` it also deploys a **static demo build** to GitHub Pages.
 
 GitHub Pages can only host static files, so it can't run the Express server. The build (`npm run build:static` → `dist/`) bundles the search code into the page so it runs in the browser. The hosted copy **always uses demo data**: a public page must never contain your SerpApi or Travelpayouts key, because anyone could read it from the page source. Price history is kept in each visitor's own browser.
 
@@ -40,6 +40,27 @@ npm run build:static && npm run preview
 ```
 
 For real fares, run the server yourself (above). A server host such as Render, Fly.io or Railway also works; set `SERPAPI_KEY` there as a secret environment variable.
+
+## Full app with live prices (Render)
+
+`render.yaml` describes the server for Render's free plan. The same workflow (`.github/workflows/deploy.yml`) deploys it after the tests pass. Render has no official GitHub Action, so the workflow uses Render's documented **deploy hook**: a secret URL that starts a deploy when called.
+
+One-time setup:
+
+1. On [render.com](https://render.com), choose **New → Blueprint**, connect GitHub and pick this repo. Render reads `render.yaml`.
+2. When it asks for the secret values, enter:
+   - `SERPAPI_KEY`: your SerpApi key.
+   - `APP_PASSWORD`: **set one.** Without it, anyone who finds the URL can run searches and use up your quota. The browser asks for it once; leave the username empty or type anything.
+   - `TRAVELPAYOUTS_TOKEN`: optional; leave it blank for demo calendar data.
+3. In the service's **Settings → Deploy Hook**, copy the URL. In GitHub, go to **Settings → Secrets and variables → Actions → New repository secret** and add it as `RENDER_DEPLOY_HOOK_URL`.
+4. After that, every push to `main` that passes the tests redeploys Render as well as GitHub Pages. Until the secret exists, the Render job is skipped.
+
+Free-plan limits:
+- The service sleeps when idle, so the first visit after a while takes about a minute.
+- The disk is wiped on every deploy or restart, which clears the search cache, your price history and the app's own monthly search counter. SerpApi's own limit of 250 searches a month still applies, so you can't be charged for going over.
+- For lasting history, use a paid instance with a persistent disk and set `DB_PATH` to a file on that disk.
+
+`render.yaml` turns off Render's own auto-deploy (`autoDeployTrigger: "off"`) so that deploys happen only after CI passes. If Render rejects that line, set **Auto-Deploy** to **Off** in the service settings instead.
 
 ## Features
 

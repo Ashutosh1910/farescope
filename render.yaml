@@ -1,0 +1,31 @@
+# Render Blueprint: Render → New → Blueprint → pick this repo.
+# Deploys are triggered by GitHub Actions (.github/workflows/deploy.yml) through a deploy hook,
+# only after the tests pass, so Render's own auto-deploy is turned off here.
+services:
+  - type: web
+    name: farescope
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Secrets: Render asks for these when you create the Blueprint. Never commit them.
+      - key: SERPAPI_KEY
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
+      - key: TRAVELPAYOUTS_TOKEN
+        sync: false
+      # The free plan's disk is wiped on every deploy/restart, so this budget counter resets then too.
+      # SerpApi's own free-plan cap (250/month) still applies.
+      - key: SERPAPI_MONTHLY_LIMIT
+        value: "250"
+      - key: SERPAPI_HOURLY_LIMIT
+        value: "30"
+      - key: LIVE_CACHE_MINUTES
+        value: "360"

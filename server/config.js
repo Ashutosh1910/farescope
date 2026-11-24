@@ -25,5 +25,7 @@ export function loadConfig(env = process.env) {
     gl: env.SERPAPI_GL || 'in',
     hl: env.SERPAPI_HL || 'en',
     forceDemo: env.DEMO === '1',
+    // When set, every page and API call needs HTTP Basic auth (any username, this password).
+    appPassword: env.APP_PASSWORD || '',
   };
 }

@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
@@ -7,11 +8,32 @@ import { loadFees } from './fees-file.js';
 import { searchAirports } from './airports.js';
 import { createSearchService } from './search.js';
 
+const sha256 = (s) => crypto.createHash('sha256').update(String(s)).digest();
+
+/** HTTP Basic auth: any username, password must equal APP_PASSWORD. */
+export function passwordGate(password) {
+  const want = sha256(password);
+  return (req, res, next) => {
+    const [scheme, encoded] = String(req.headers.authorization || '').split(' ');
+    if (scheme === 'Basic' && encoded) {
+      const decoded = Buffer.from(encoded, 'base64').toString('utf8');
+      const given = decoded.slice(decoded.indexOf(':') + 1);
+      if (crypto.timingSafeEqual(sha256(given), want)) return next();
+    }
+    res.set('WWW-Authenticate', 'Basic realm="FareScope", charset="UTF-8"');
+    res.status(401).json({ error: 'Password required' });
+  };
+}
+
 export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchImpl } = {}) {
   const database = db || openDb(config.dbPath);
   const svc = createSearchService({ db: database, config, fees, fetchImpl });
   const app = express();
   app.disable('x-powered-by');
+
+  // Unauthenticated liveness check for hosts like Render (reveals nothing).
+  app.get('/healthz', (req, res) => res.type('text').send('ok'));
+  if (config.appPassword) app.use(passwordGate(config.appPassword));
 
   const wrap = (fn) => async (req, res) => {
     try {
@@ -45,6 +67,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const svc = createSearchService({ db: app.locals.db, config, fees: loadFees() }).status();
     console.log(`FareScope running at http://localhost:${config.port}`);
     console.log(`  live prices: ${svc.liveProvider}${svc.liveProvider === 'demo' ? ' (set SERPAPI_KEY for real fares)' : ''}`);
+    console.log(`  password: ${config.appPassword ? 'on (APP_PASSWORD)' : 'off — anyone who can reach this server can spend your searches'}`);
     console.log(`  calendar/explore: ${svc.calendarProvider}${svc.calendarProvider === 'demo' ? ' (set TRAVELPAYOUTS_TOKEN for cached real fares)' : ''}`);
   });
 }

@@ -1,4 +1,4 @@
-name: Test and deploy to GitHub Pages
+name: Test and deploy
 
 on:
   push:
@@ -55,3 +55,23 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # Full app with live prices on Render. Render has no official GitHub Action; its documented
+  # way is a deploy hook URL. Store it as the repo secret RENDER_DEPLOY_HOOK_URL
+  # (Render → service → Settings → Deploy Hook). Without the secret this job is skipped.
+  render:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+    steps:
+      - name: Trigger Render deploy
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
+        run: |
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$RENDER_DEPLOY_HOOK_URL")
+          echo "Render answered HTTP $code"
+          test "$code" -ge 200 -a "$code" -lt 300
+      - name: Skip (no deploy hook configured)
+        if: env.RENDER_DEPLOY_HOOK_URL == ''
+        run: echo "::notice::RENDER_DEPLOY_HOOK_URL secret not set — skipping the Render deploy."
