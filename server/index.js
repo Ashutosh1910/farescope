@@ -31,8 +31,10 @@ export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchI
   const app = express();
   app.disable('x-powered-by');
 
-  // Unauthenticated liveness check for hosts like Render (reveals nothing).
-  app.get('/healthz', (req, res) => res.type('text').send('ok'));
+  // Unauthenticated liveness check for hosts like Render. Shows only the running commit
+  // (Render sets RENDER_GIT_COMMIT) so a deploy can be verified without the password.
+  const commit = (process.env.RENDER_GIT_COMMIT || '').slice(0, 7);
+  app.get('/healthz', (req, res) => res.type('text').send(commit ? `ok ${commit}` : 'ok'));
   if (config.appPassword) app.use(passwordGate(config.appPassword));
 
   const wrap = (fn) => async (req, res) => {
