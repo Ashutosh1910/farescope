@@ -7,7 +7,8 @@ services:
     runtime: node
     plan: free
     region: singapore
-    buildCommand: npm ci --omit=dev
+    # Also records the commit so /healthz can report which version is live.
+    buildCommand: npm ci --omit=dev && (git rev-parse --short HEAD > .build-commit || true)
     startCommand: npm start
     healthCheckPath: /healthz
     autoDeployTrigger: "off"

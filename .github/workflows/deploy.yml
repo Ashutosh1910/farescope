@@ -65,13 +65,46 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      # Public facts about the Render service (not secrets). Override with repo variables if they change.
+      RENDER_URL: ${{ vars.RENDER_URL || 'https://farescope-ocu7.onrender.com' }}
+      RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID || 'srv-dc2u6gd6e07s73869ba0' }}
     steps:
       - name: Trigger Render deploy
         if: env.RENDER_DEPLOY_HOOK_URL != ''
         run: |
-          code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$RENDER_DEPLOY_HOOK_URL")
-          echo "Render answered HTTP $code"
+          # Show which service the hook points at, without its ?key= part.
+          path=$(printf '%s' "$RENDER_DEPLOY_HOOK_URL" | sed -E 's#^https?://[^/]+##; s#\?.*##')
+          host=$(printf '%s' "$RENDER_DEPLOY_HOOK_URL" | sed -E 's#^(https?://[^/?]+).*#\1#')
+          echo "Hook: $host$path?key=…"
+          case "$path" in
+            /deploy/srv-*) ;;
+            *) echo "::error::RENDER_DEPLOY_HOOK_URL is not a Render deploy hook (expected https://api.render.com/deploy/srv-…?key=…)"; exit 1 ;;
+          esac
+          hook_service=${path#/deploy/}
+          if [ "$hook_service" != "$RENDER_SERVICE_ID" ]; then
+            echo "::error::The deploy hook is for service $hook_service, but the FareScope service is $RENDER_SERVICE_ID. Copy the hook from that service's Settings → Deploy Hook into the RENDER_DEPLOY_HOOK_URL secret."
+            exit 1
+          fi
+          out=$(curl -sS -X POST -w '\n%{http_code}' "$RENDER_DEPLOY_HOOK_URL")
+          code=${out##*$'\n'}
+          body=${out%$'\n'*}
+          echo "Render answered HTTP $code: $body"
           test "$code" -ge 200 -a "$code" -lt 300
+
+      - name: Wait until Render serves this commit
+        if: env.RENDER_DEPLOY_HOOK_URL != '' && env.RENDER_URL != ''
+        timeout-minutes: 16
+        run: |
+          want=${GITHUB_SHA::7}
+          for i in $(seq 1 60); do
+            got=$(curl -s --max-time 30 "$RENDER_URL/healthz" || true)
+            echo "$(date -u +%T) /healthz → ${got:-no answer}"
+            [ "$got" = "ok $want" ] && { echo "Render is serving $want"; exit 0; }
+            sleep 15
+          done
+          echo "::error::Render accepted the hook but still isn't serving $want after 15 minutes. Open the service's Events page on Render to see whether the deploy failed."
+          exit 1
+
       - name: Skip (no deploy hook configured)
         if: env.RENDER_DEPLOY_HOOK_URL == ''
         run: echo "::notice::RENDER_DEPLOY_HOOK_URL secret not set — skipping the Render deploy."

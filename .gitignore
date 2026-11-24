@@ -3,3 +3,4 @@ node_modules/
 data/*.db*
 dist/
 data/airports-world.json
+.build-commit

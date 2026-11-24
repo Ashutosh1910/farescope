@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
@@ -33,7 +34,14 @@ export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchI
 
   // Unauthenticated liveness check for hosts like Render. Shows only the running commit
   // (Render sets RENDER_GIT_COMMIT) so a deploy can be verified without the password.
-  const commit = (process.env.RENDER_GIT_COMMIT || '').slice(0, 7);
+  let commit = (process.env.RENDER_GIT_COMMIT || '').slice(0, 7);
+  if (!commit) {
+    try {
+      commit = fs.readFileSync(path.join(ROOT, '.build-commit'), 'utf8').trim().slice(0, 7);
+    } catch {
+      /* not a Render build */
+    }
+  }
   app.get('/healthz', (req, res) => res.type('text').send(commit ? `ok ${commit}` : 'ok'));
   if (config.appPassword) app.use(passwordGate(config.appPassword));
 
