@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FareScope — flight price search</title>
+  <meta name="description" content="Personal flight price search: live Google Flights fares via SerpApi, cached cheap-date calendar via Travelpayouts.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d6b57'/%3E%3Cpath d='M7 19l18-7-6 12-3-5z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="FareScope home">
+      <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="currentColor"/><path d="M7 19l18-7-6 12-3-5z" fill="var(--on-accent)"/></svg>
+      <span>FareScope</span>
+    </a>
+    <span id="status-chip" class="chip" hidden></span>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Find the cheapest way there.</h1>
+      <p class="lede">Live fares, cheap-date calendar and honest totals — including the fees that only show up at checkout.</p>
+
+      <form id="search-form" class="search-card" autocomplete="off" novalidate>
+        <div class="search-top">
+          <div class="seg" role="group" aria-label="Trip type">
+            <button type="button" data-trip="return" aria-pressed="true">Return</button>
+            <button type="button" data-trip="oneway" aria-pressed="false">One way</button>
+          </div>
+          <label class="inline-field">
+            <span>Currency</span>
+            <select id="currency">
+              <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option><option>AED</option><option>SGD</option>
+            </select>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="show-est">
+            <span class="switch-track" aria-hidden="true"></span>
+            <span>Show totals with fees</span>
+          </label>
+        </div>
+
+        <div class="fields">
+          <div class="field ac">
+            <label for="from">From</label>
+            <input id="from" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="from-list" placeholder="City or airport" spellcheck="false">
+            <ul id="from-list" class="ac-list" role="listbox" hidden></ul>
+          </div>
+          <button type="button" class="swap" id="swap" aria-label="Swap origin and destination">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 7h12l-3-3M17 17H5l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="field ac">
+            <label for="to">To</label>
+            <input id="to" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="to-list" placeholder="City, airport or Anywhere" spellcheck="false">
+            <ul id="to-list" class="ac-list" role="listbox" hidden></ul>
+          </div>
+          <div class="field">
+            <label for="depart">Depart</label>
+            <input type="date" id="depart" required>
+          </div>
+          <div class="field" id="return-field">
+            <label for="ret">Return</label>
+            <input type="date" id="ret">
+          </div>
+          <div class="field pax">
+            <label for="pax-btn">Travellers &amp; cabin</label>
+            <button type="button" id="pax-btn" class="pax-btn" aria-haspopup="dialog" aria-expanded="false">1 adult · Economy</button>
+            <div class="popover" id="pax-pop" role="dialog" aria-label="Travellers and cabin" hidden>
+              <div class="stepper" data-key="adults"><div><strong>Adults</strong><small>12+ years</small></div><div class="step-ctl"><button type="button" data-d="-1" aria-label="Fewer adults">−</button><output>1</output><button type="button" data-d="1" aria-label="More adults">+</button></div></div>
+              <div class="stepper" data-key="children"><div><strong>Children</strong><small>2–11 years</small></div><div class="step-ctl"><button type="button" data-d="-1" aria-label="Fewer children">−</button><output>0</output><button type="button" data-d="1" aria-label="More children">+</button></div></div>
+              <div class="stepper" data-key="infantsSeat"><div><strong>Infants in seat</strong><small>Under 2</small></div><div class="step-ctl"><button type="button" data-d="-1" aria-label="Fewer infants in seat">−</button><output>0</output><button type="button" data-d="1" aria-label="More infants in seat">+</button></div></div>
+              <div class="stepper" data-key="infantsLap"><div><strong>Infants on lap</strong><small>Under 2</small></div><div class="step-ctl"><button type="button" data-d="-1" aria-label="Fewer infants on lap">−</button><output>0</output><button type="button" data-d="1" aria-label="More infants on lap">+</button></div></div>
+              <label class="cabin-row">
+                <strong>Cabin</strong>
+                <select id="cabin">
+                  <option value="economy">Economy</option>
+                  <option value="premium">Premium economy</option>
+                  <option value="business">Business</option>
+                  <option value="first">First</option>
+                </select>
+              </label>
+              <p class="pax-note" id="pax-note"></p>
+              <button type="button" class="btn primary sm" id="pax-done">Done</button>
+            </div>
+          </div>
+          <button class="btn primary search-btn" type="submit">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            Search
+          </button>
+        </div>
+        <p class="form-error" id="form-error" role="alert"></p>
+      </form>
+    </div>
+  </section>
+
+  <main id="main">
+    <div id="banner"></div>
+    <section id="calendar" class="panel" hidden></section>
+    <section id="insights" class="insights" hidden></section>
+
+    <section id="results-area" hidden>
+      <div id="trip-steps"></div>
+      <div class="layout">
+        <button type="button" class="btn ghost filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters">Filters</button>
+        <aside id="filters" class="filters" aria-label="Filters"></aside>
+        <div class="list-col">
+          <div id="sort-tabs"></div>
+          <div id="list" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="explore" hidden></section>
+
+    <section id="intro" class="intro">
+      <div class="intro-tile">
+        <h3>Live prices</h3>
+        <p>Fares come straight from Google Flights through SerpApi — IndiGo, Air India, Akasa, SpiceJet and international carriers in one list.</p>
+      </div>
+      <div class="intro-tile">
+        <h3>Cheapest days</h3>
+        <p>A month-at-a-glance calendar from Travelpayouts' cached fares. Free, a few days old — good for spotting cheap dates, then confirm live.</p>
+      </div>
+      <div class="intro-tile">
+        <h3>Honest totals</h3>
+        <p>Search APIs can't see payment-page fees. Add each airline's convenience fee to <code>data/fees.json</code> and every result shows an estimated total.</p>
+      </div>
+      <div class="intro-tile">
+        <h3>Go anywhere</h3>
+        <p>Leave "To" empty or pick <em>Anywhere</em> to see the cheapest destinations from your airport this month.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="drawer-backdrop" class="backdrop" hidden></div>
+  <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-head">
+      <h2 id="drawer-title">Your trip</h2>
+      <button type="button" class="icon-btn" id="drawer-close" aria-label="Close">✕</button>
+    </div>
+    <div id="drawer-body"></div>
+  </aside>
+
+  <footer class="footer">
+    <p>Prices are estimates. The airline's payment page is the final price. FareScope is a personal tool and does not sell tickets.</p>
+  </footer>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

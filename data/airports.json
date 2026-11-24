@@ -1,0 +1,884 @@
+[
+{
+"code": "DEL",
+"name": "Indira Gandhi International",
+"city": "New Delhi",
+"country": "India",
+"lat": 28.556,
+"lon": 77.1,
+"tz": 5.5
+},
+{
+"code": "BOM",
+"name": "Chhatrapati Shivaji Maharaj International",
+"city": "Mumbai",
+"country": "India",
+"lat": 19.089,
+"lon": 72.868,
+"tz": 5.5
+},
+{
+"code": "BLR",
+"name": "Kempegowda International",
+"city": "Bengaluru",
+"country": "India",
+"lat": 13.199,
+"lon": 77.706,
+"tz": 5.5
+},
+{
+"code": "MAA",
+"name": "Chennai International",
+"city": "Chennai",
+"country": "India",
+"lat": 12.99,
+"lon": 80.169,
+"tz": 5.5
+},
+{
+"code": "CCU",
+"name": "Netaji Subhas Chandra Bose International",
+"city": "Kolkata",
+"country": "India",
+"lat": 22.654,
+"lon": 88.447,
+"tz": 5.5
+},
+{
+"code": "HYD",
+"name": "Rajiv Gandhi International",
+"city": "Hyderabad",
+"country": "India",
+"lat": 17.24,
+"lon": 78.429,
+"tz": 5.5
+},
+{
+"code": "COK",
+"name": "Cochin International",
+"city": "Kochi",
+"country": "India",
+"lat": 10.152,
+"lon": 76.402,
+"tz": 5.5
+},
+{
+"code": "GOI",
+"name": "Dabolim",
+"city": "Goa",
+"country": "India",
+"lat": 15.381,
+"lon": 73.831,
+"tz": 5.5
+},
+{
+"code": "GOX",
+"name": "Manohar International (Mopa)",
+"city": "Goa",
+"country": "India",
+"lat": 15.744,
+"lon": 73.861,
+"tz": 5.5
+},
+{
+"code": "AMD",
+"name": "Sardar Vallabhbhai Patel International",
+"city": "Ahmedabad",
+"country": "India",
+"lat": 23.077,
+"lon": 72.635,
+"tz": 5.5
+},
+{
+"code": "PNQ",
+"name": "Pune International",
+"city": "Pune",
+"country": "India",
+"lat": 18.582,
+"lon": 73.92,
+"tz": 5.5
+},
+{
+"code": "JAI",
+"name": "Jaipur International",
+"city": "Jaipur",
+"country": "India",
+"lat": 26.824,
+"lon": 75.812,
+"tz": 5.5
+},
+{
+"code": "LKO",
+"name": "Chaudhary Charan Singh International",
+"city": "Lucknow",
+"country": "India",
+"lat": 26.761,
+"lon": 80.889,
+"tz": 5.5
+},
+{
+"code": "TRV",
+"name": "Thiruvananthapuram International",
+"city": "Thiruvananthapuram",
+"country": "India",
+"lat": 8.482,
+"lon": 76.92,
+"tz": 5.5
+},
+{
+"code": "IXC",
+"name": "Chandigarh International",
+"city": "Chandigarh",
+"country": "India",
+"lat": 30.673,
+"lon": 76.788,
+"tz": 5.5
+},
+{
+"code": "SXR",
+"name": "Sheikh ul-Alam International",
+"city": "Srinagar",
+"country": "India",
+"lat": 33.987,
+"lon": 74.774,
+"tz": 5.5
+},
+{
+"code": "ATQ",
+"name": "Sri Guru Ram Dass Jee International",
+"city": "Amritsar",
+"country": "India",
+"lat": 31.71,
+"lon": 74.797,
+"tz": 5.5
+},
+{
+"code": "GAU",
+"name": "Lokpriya Gopinath Bordoloi International",
+"city": "Guwahati",
+"country": "India",
+"lat": 26.106,
+"lon": 91.586,
+"tz": 5.5
+},
+{
+"code": "PAT",
+"name": "Jay Prakash Narayan International",
+"city": "Patna",
+"country": "India",
+"lat": 25.591,
+"lon": 85.088,
+"tz": 5.5
+},
+{
+"code": "BBI",
+"name": "Biju Patnaik International",
+"city": "Bhubaneswar",
+"country": "India",
+"lat": 20.244,
+"lon": 85.818,
+"tz": 5.5
+},
+{
+"code": "IXB",
+"name": "Bagdogra",
+"city": "Siliguri",
+"country": "India",
+"lat": 26.681,
+"lon": 88.329,
+"tz": 5.5
+},
+{
+"code": "VNS",
+"name": "Lal Bahadur Shastri International",
+"city": "Varanasi",
+"country": "India",
+"lat": 25.452,
+"lon": 82.859,
+"tz": 5.5
+},
+{
+"code": "NAG",
+"name": "Dr. Babasaheb Ambedkar International",
+"city": "Nagpur",
+"country": "India",
+"lat": 21.092,
+"lon": 79.047,
+"tz": 5.5
+},
+{
+"code": "IDR",
+"name": "Devi Ahilya Bai Holkar",
+"city": "Indore",
+"country": "India",
+"lat": 22.722,
+"lon": 75.801,
+"tz": 5.5
+},
+{
+"code": "VTZ",
+"name": "Visakhapatnam International",
+"city": "Visakhapatnam",
+"country": "India",
+"lat": 17.721,
+"lon": 83.225,
+"tz": 5.5
+},
+{
+"code": "CJB",
+"name": "Coimbatore International",
+"city": "Coimbatore",
+"country": "India",
+"lat": 11.03,
+"lon": 77.043,
+"tz": 5.5
+},
+{
+"code": "IXE",
+"name": "Mangaluru International",
+"city": "Mangaluru",
+"country": "India",
+"lat": 12.961,
+"lon": 74.89,
+"tz": 5.5
+},
+{
+"code": "IXM",
+"name": "Madurai",
+"city": "Madurai",
+"country": "India",
+"lat": 9.835,
+"lon": 78.093,
+"tz": 5.5
+},
+{
+"code": "TRZ",
+"name": "Tiruchirappalli International",
+"city": "Tiruchirappalli",
+"country": "India",
+"lat": 10.765,
+"lon": 78.71,
+"tz": 5.5
+},
+{
+"code": "RPR",
+"name": "Swami Vivekananda",
+"city": "Raipur",
+"country": "India",
+"lat": 21.18,
+"lon": 81.739,
+"tz": 5.5
+},
+{
+"code": "BHO",
+"name": "Raja Bhoj",
+"city": "Bhopal",
+"country": "India",
+"lat": 23.288,
+"lon": 77.337,
+"tz": 5.5
+},
+{
+"code": "UDR",
+"name": "Maharana Pratap",
+"city": "Udaipur",
+"country": "India",
+"lat": 24.618,
+"lon": 73.896,
+"tz": 5.5
+},
+{
+"code": "JDH",
+"name": "Jodhpur",
+"city": "Jodhpur",
+"country": "India",
+"lat": 26.251,
+"lon": 73.049,
+"tz": 5.5
+},
+{
+"code": "IXR",
+"name": "Birsa Munda",
+"city": "Ranchi",
+"country": "India",
+"lat": 23.314,
+"lon": 85.322,
+"tz": 5.5
+},
+{
+"code": "DED",
+"name": "Jolly Grant",
+"city": "Dehradun",
+"country": "India",
+"lat": 30.19,
+"lon": 78.18,
+"tz": 5.5
+},
+{
+"code": "IXJ",
+"name": "Jammu",
+"city": "Jammu",
+"country": "India",
+"lat": 32.689,
+"lon": 74.837,
+"tz": 5.5
+},
+{
+"code": "IXL",
+"name": "Kushok Bakula Rimpochee",
+"city": "Leh",
+"country": "India",
+"lat": 34.136,
+"lon": 77.546,
+"tz": 5.5
+},
+{
+"code": "IXZ",
+"name": "Veer Savarkar International",
+"city": "Port Blair",
+"country": "India",
+"lat": 11.641,
+"lon": 92.73,
+"tz": 5.5
+},
+{
+"code": "STV",
+"name": "Surat International",
+"city": "Surat",
+"country": "India",
+"lat": 21.114,
+"lon": 72.742,
+"tz": 5.5
+},
+{
+"code": "VGA",
+"name": "Vijayawada International",
+"city": "Vijayawada",
+"country": "India",
+"lat": 16.53,
+"lon": 80.797,
+"tz": 5.5
+},
+{
+"code": "IXA",
+"name": "Maharaja Bir Bikram",
+"city": "Agartala",
+"country": "India",
+"lat": 23.887,
+"lon": 91.24,
+"tz": 5.5
+},
+{
+"code": "DXB",
+"name": "Dubai International",
+"city": "Dubai",
+"country": "United Arab Emirates",
+"lat": 25.253,
+"lon": 55.364,
+"tz": 4.0
+},
+{
+"code": "AUH",
+"name": "Zayed International",
+"city": "Abu Dhabi",
+"country": "United Arab Emirates",
+"lat": 24.433,
+"lon": 54.651,
+"tz": 4.0
+},
+{
+"code": "SHJ",
+"name": "Sharjah International",
+"city": "Sharjah",
+"country": "United Arab Emirates",
+"lat": 25.329,
+"lon": 55.517,
+"tz": 4.0
+},
+{
+"code": "DOH",
+"name": "Hamad International",
+"city": "Doha",
+"country": "Qatar",
+"lat": 25.273,
+"lon": 51.608,
+"tz": 3.0
+},
+{
+"code": "MCT",
+"name": "Muscat International",
+"city": "Muscat",
+"country": "Oman",
+"lat": 23.593,
+"lon": 58.284,
+"tz": 4.0
+},
+{
+"code": "BAH",
+"name": "Bahrain International",
+"city": "Manama",
+"country": "Bahrain",
+"lat": 26.271,
+"lon": 50.634,
+"tz": 3.0
+},
+{
+"code": "KWI",
+"name": "Kuwait International",
+"city": "Kuwait City",
+"country": "Kuwait",
+"lat": 29.241,
+"lon": 47.969,
+"tz": 3.0
+},
+{
+"code": "RUH",
+"name": "King Khalid International",
+"city": "Riyadh",
+"country": "Saudi Arabia",
+"lat": 24.958,
+"lon": 46.699,
+"tz": 3.0
+},
+{
+"code": "JED",
+"name": "King Abdulaziz International",
+"city": "Jeddah",
+"country": "Saudi Arabia",
+"lat": 21.68,
+"lon": 39.157,
+"tz": 3.0
+},
+{
+"code": "SIN",
+"name": "Changi",
+"city": "Singapore",
+"country": "Singapore",
+"lat": 1.364,
+"lon": 103.991,
+"tz": 8.0
+},
+{
+"code": "KUL",
+"name": "Kuala Lumpur International",
+"city": "Kuala Lumpur",
+"country": "Malaysia",
+"lat": 2.746,
+"lon": 101.71,
+"tz": 8.0
+},
+{
+"code": "BKK",
+"name": "Suvarnabhumi",
+"city": "Bangkok",
+"country": "Thailand",
+"lat": 13.69,
+"lon": 100.75,
+"tz": 7.0
+},
+{
+"code": "DMK",
+"name": "Don Mueang International",
+"city": "Bangkok",
+"country": "Thailand",
+"lat": 13.913,
+"lon": 100.607,
+"tz": 7.0
+},
+{
+"code": "HKT",
+"name": "Phuket International",
+"city": "Phuket",
+"country": "Thailand",
+"lat": 8.113,
+"lon": 98.317,
+"tz": 7.0
+},
+{
+"code": "DPS",
+"name": "Ngurah Rai International",
+"city": "Bali",
+"country": "Indonesia",
+"lat": -8.748,
+"lon": 115.167,
+"tz": 8.0
+},
+{
+"code": "CGK",
+"name": "Soekarno-Hatta International",
+"city": "Jakarta",
+"country": "Indonesia",
+"lat": -6.126,
+"lon": 106.656,
+"tz": 7.0
+},
+{
+"code": "HKG",
+"name": "Hong Kong International",
+"city": "Hong Kong",
+"country": "Hong Kong",
+"lat": 22.308,
+"lon": 113.918,
+"tz": 8.0
+},
+{
+"code": "NRT",
+"name": "Narita International",
+"city": "Tokyo",
+"country": "Japan",
+"lat": 35.772,
+"lon": 140.393,
+"tz": 9.0
+},
+{
+"code": "HND",
+"name": "Haneda",
+"city": "Tokyo",
+"country": "Japan",
+"lat": 35.549,
+"lon": 139.78,
+"tz": 9.0
+},
+{
+"code": "ICN",
+"name": "Incheon International",
+"city": "Seoul",
+"country": "South Korea",
+"lat": 37.46,
+"lon": 126.441,
+"tz": 9.0
+},
+{
+"code": "PEK",
+"name": "Beijing Capital International",
+"city": "Beijing",
+"country": "China",
+"lat": 40.08,
+"lon": 116.585,
+"tz": 8.0
+},
+{
+"code": "PVG",
+"name": "Shanghai Pudong International",
+"city": "Shanghai",
+"country": "China",
+"lat": 31.144,
+"lon": 121.808,
+"tz": 8.0
+},
+{
+"code": "CMB",
+"name": "Bandaranaike International",
+"city": "Colombo",
+"country": "Sri Lanka",
+"lat": 7.181,
+"lon": 79.884,
+"tz": 5.5
+},
+{
+"code": "MLE",
+"name": "Velana International",
+"city": "Malé",
+"country": "Maldives",
+"lat": 4.192,
+"lon": 73.529,
+"tz": 5.0
+},
+{
+"code": "KTM",
+"name": "Tribhuvan International",
+"city": "Kathmandu",
+"country": "Nepal",
+"lat": 27.697,
+"lon": 85.359,
+"tz": 5.75
+},
+{
+"code": "DAC",
+"name": "Hazrat Shahjalal International",
+"city": "Dhaka",
+"country": "Bangladesh",
+"lat": 23.843,
+"lon": 90.398,
+"tz": 6.0
+},
+{
+"code": "LHR",
+"name": "Heathrow",
+"city": "London",
+"country": "United Kingdom",
+"lat": 51.47,
+"lon": -0.454,
+"tz": 0.0
+},
+{
+"code": "LGW",
+"name": "Gatwick",
+"city": "London",
+"country": "United Kingdom",
+"lat": 51.153,
+"lon": -0.182,
+"tz": 0.0
+},
+{
+"code": "MAN",
+"name": "Manchester",
+"city": "Manchester",
+"country": "United Kingdom",
+"lat": 53.354,
+"lon": -2.275,
+"tz": 0.0
+},
+{
+"code": "CDG",
+"name": "Charles de Gaulle",
+"city": "Paris",
+"country": "France",
+"lat": 49.01,
+"lon": 2.548,
+"tz": 1.0
+},
+{
+"code": "FRA",
+"name": "Frankfurt",
+"city": "Frankfurt",
+"country": "Germany",
+"lat": 50.038,
+"lon": 8.562,
+"tz": 1.0
+},
+{
+"code": "MUC",
+"name": "Munich",
+"city": "Munich",
+"country": "Germany",
+"lat": 48.354,
+"lon": 11.786,
+"tz": 1.0
+},
+{
+"code": "AMS",
+"name": "Schiphol",
+"city": "Amsterdam",
+"country": "Netherlands",
+"lat": 52.31,
+"lon": 4.768,
+"tz": 1.0
+},
+{
+"code": "ZRH",
+"name": "Zurich",
+"city": "Zurich",
+"country": "Switzerland",
+"lat": 47.458,
+"lon": 8.555,
+"tz": 1.0
+},
+{
+"code": "IST",
+"name": "Istanbul",
+"city": "Istanbul",
+"country": "Türkiye",
+"lat": 41.262,
+"lon": 28.742,
+"tz": 3.0
+},
+{
+"code": "FCO",
+"name": "Leonardo da Vinci–Fiumicino",
+"city": "Rome",
+"country": "Italy",
+"lat": 41.8,
+"lon": 12.239,
+"tz": 1.0
+},
+{
+"code": "MAD",
+"name": "Adolfo Suárez Madrid–Barajas",
+"city": "Madrid",
+"country": "Spain",
+"lat": 40.472,
+"lon": -3.561,
+"tz": 1.0
+},
+{
+"code": "BCN",
+"name": "Josep Tarradellas Barcelona–El Prat",
+"city": "Barcelona",
+"country": "Spain",
+"lat": 41.297,
+"lon": 2.078,
+"tz": 1.0
+},
+{
+"code": "VIE",
+"name": "Vienna International",
+"city": "Vienna",
+"country": "Austria",
+"lat": 48.11,
+"lon": 16.57,
+"tz": 1.0
+},
+{
+"code": "HEL",
+"name": "Helsinki-Vantaa",
+"city": "Helsinki",
+"country": "Finland",
+"lat": 60.317,
+"lon": 24.963,
+"tz": 2.0
+},
+{
+"code": "JFK",
+"name": "John F. Kennedy International",
+"city": "New York",
+"country": "United States",
+"lat": 40.641,
+"lon": -73.778,
+"tz": -5.0
+},
+{
+"code": "EWR",
+"name": "Newark Liberty International",
+"city": "Newark",
+"country": "United States",
+"lat": 40.69,
+"lon": -74.175,
+"tz": -5.0
+},
+{
+"code": "ORD",
+"name": "O'Hare International",
+"city": "Chicago",
+"country": "United States",
+"lat": 41.974,
+"lon": -87.907,
+"tz": -6.0
+},
+{
+"code": "IAD",
+"name": "Washington Dulles International",
+"city": "Washington",
+"country": "United States",
+"lat": 38.953,
+"lon": -77.456,
+"tz": -5.0
+},
+{
+"code": "SFO",
+"name": "San Francisco International",
+"city": "San Francisco",
+"country": "United States",
+"lat": 37.621,
+"lon": -122.379,
+"tz": -8.0
+},
+{
+"code": "LAX",
+"name": "Los Angeles International",
+"city": "Los Angeles",
+"country": "United States",
+"lat": 33.942,
+"lon": -118.408,
+"tz": -8.0
+},
+{
+"code": "SEA",
+"name": "Seattle–Tacoma International",
+"city": "Seattle",
+"country": "United States",
+"lat": 47.45,
+"lon": -122.309,
+"tz": -8.0
+},
+{
+"code": "YYZ",
+"name": "Toronto Pearson International",
+"city": "Toronto",
+"country": "Canada",
+"lat": 43.678,
+"lon": -79.625,
+"tz": -5.0
+},
+{
+"code": "YVR",
+"name": "Vancouver International",
+"city": "Vancouver",
+"country": "Canada",
+"lat": 49.195,
+"lon": -123.178,
+"tz": -8.0
+},
+{
+"code": "SYD",
+"name": "Sydney Kingsford Smith",
+"city": "Sydney",
+"country": "Australia",
+"lat": -33.94,
+"lon": 151.175,
+"tz": 10.0
+},
+{
+"code": "MEL",
+"name": "Melbourne",
+"city": "Melbourne",
+"country": "Australia",
+"lat": -37.669,
+"lon": 144.841,
+"tz": 10.0
+},
+{
+"code": "PER",
+"name": "Perth",
+"city": "Perth",
+"country": "Australia",
+"lat": -31.94,
+"lon": 115.967,
+"tz": 8.0
+},
+{
+"code": "AKL",
+"name": "Auckland",
+"city": "Auckland",
+"country": "New Zealand",
+"lat": -37.008,
+"lon": 174.792,
+"tz": 12.0
+},
+{
+"code": "JNB",
+"name": "O. R. Tambo International",
+"city": "Johannesburg",
+"country": "South Africa",
+"lat": -26.134,
+"lon": 28.242,
+"tz": 2.0
+},
+{
+"code": "NBO",
+"name": "Jomo Kenyatta International",
+"city": "Nairobi",
+"country": "Kenya",
+"lat": -1.319,
+"lon": 36.928,
+"tz": 3.0
+},
+{
+"code": "CAI",
+"name": "Cairo International",
+"city": "Cairo",
+"country": "Egypt",
+"lat": 30.122,
+"lon": 31.406,
+"tz": 2.0
+},
+{
+"code": "ADD",
+"name": "Addis Ababa Bole International",
+"city": "Addis Ababa",
+"country": "Ethiopia",
+"lat": 8.978,
+"lon": 38.799,
+"tz": 3.0
+}
+]

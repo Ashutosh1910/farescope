@@ -1,0 +1,52 @@
+{
+  "_readme": "Per-airline fees that search APIs can't see (they only appear on the payment page). Look each one up on the airline's own fees page, fill in amount/per/verified, and re-check every few months. 'per' is one of: passenger, passenger_sector (per passenger per direction), booking. Lap infants are not counted as paying passengers. A null amount means 'not configured yet' and the app will say so instead of guessing.",
+  "currency": "INR",
+  "countLapInfants": false,
+  "airlines": {
+    "IndiGo": {
+      "code": "6E",
+      "convenienceFee": 249,
+      "per": "passenger",
+      "verified": null,
+      "note": "₹249 listed on IndiGo's fee page for cards, app and net banking. Confirm whether it is charged per passenger or per passenger per sector.",
+      "source": "https://www.goindigo.in/information/fee-charges.html",
+      "bookUrl": "https://www.goindigo.in/"
+    },
+    "Air India": {
+      "code": "AI",
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check Air India's fees page.",
+      "source": null,
+      "bookUrl": "https://www.airindia.com/"
+    },
+    "Air India Express": {
+      "code": "IX",
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check Air India Express's fees page.",
+      "source": null,
+      "bookUrl": "https://www.airindiaexpress.com/"
+    },
+    "Akasa Air": {
+      "code": "QP",
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check Akasa Air's fees page.",
+      "source": null,
+      "bookUrl": "https://www.akasaair.com/"
+    },
+    "SpiceJet": {
+      "code": "SG",
+      "convenienceFee": null,
+      "per": "passenger",
+      "verified": null,
+      "note": "Not configured — check SpiceJet's fees page.",
+      "source": null,
+      "bookUrl": "https://www.spicejet.com/"
+    }
+  }
+}
