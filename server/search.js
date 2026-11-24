@@ -66,7 +66,7 @@ export function parseMonthQuery(raw, { needTo = true } = {}) {
 const cacheKey = (kind, provider, obj) =>
   `${kind}:${provider}:${JSON.stringify(Object.keys(obj).sort().map((k) => [k, obj[k]]))}`;
 
-export function createSearchService({ db, config, fees, fetchImpl = fetch, now = () => Date.now() }) {
+export function createSearchService({ db, config, fees, fetchImpl = fetch, now = () => Date.now(), lookupPlace = () => null }) {
   const liveProvider = config.serpapiKey && !config.forceDemo ? 'serpapi' : 'demo';
   const calendarProvider = config.travelpayoutsToken && !config.forceDemo ? 'travelpayouts' : 'demo';
 
@@ -124,7 +124,7 @@ export function createSearchService({ db, config, fees, fetchImpl = fetch, now =
 
   const airportInfo = (c) => {
     const a = getAirport(c);
-    return a ? publicAirport(a) : { code: c, name: c, city: c, country: '' };
+    return a ? publicAirport(a) : lookupPlace(c) || { code: c, name: c, city: c, country: '' };
   };
 
   function recordHistory(q, result) {

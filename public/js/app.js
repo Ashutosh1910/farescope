@@ -492,7 +492,8 @@ async function loadCalendar(month) {
   box.hidden = false;
   box.innerHTML = `<div class="panel-head"><h2>Cheapest days · ${esc(monthLabel(month))}</h2></div><div class="skeleton" style="height:76px"></div>`;
   try {
-    const res = await api('calendar', { from: q.from, to: q.to, month, oneWay: String(!q.return), currency: q.currency, cabin: q.cabin });
+    // Always one-way: cached round-trip fares have random trip lengths, so they mislead when choosing a day.
+    const res = await api('calendar', { from: q.from, to: q.to, month, oneWay: 'true', currency: q.currency, cabin: q.cabin });
     if (state.calendarMonth !== month) return;
     renderCalendar(res, month);
   } catch (err) {
@@ -527,7 +528,7 @@ function renderCalendar(res, month) {
     </div>
     <div class="days" role="list">${cells.join('')}</div>
     <div class="cal-foot"><span class="legend"><i class="lvl-low"></i>Cheaper <i class="lvl-mid"></i>Average <i class="lvl-high"></i>Pricier</span>
-      <span>${esc(src)} · price per adult${q.return ? ', round trip, any return date' : ''} · tap a day to search it live</span></div>`;
+      <span>${esc(src)} · one-way fare per adult${q.return ? ' for the outbound day' : ''} · tap a day to search it live</span></div>`;
   $('.day.selected')?.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
 

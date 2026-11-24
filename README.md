@@ -110,7 +110,8 @@ public/               UI written in plain JavaScript (no build step for the serv
   js/filters.js       filter/sort logic with no page code (unit-tested)
 static/backend.js     in-browser search code for the Pages build (demo provider only)
 scripts/build-static.mjs  builds dist/ with esbuild
-data/airports.json    98 airports (all major Indian ones plus international hubs)
+data/airports.json    98 bundled airports with coordinates (used by demo data, and preferred in search)
+server/world-airports.js  downloads and caches the world airport list
 data/fees.json        your fee table
 test/                 node:test suites (npm test)
 ```
@@ -119,7 +120,7 @@ API: `GET /api/search`, `/api/return?token=`, `/api/calendar?month=YYYY-MM`, `/a
 
 ## Limits
 
-- Demo mode only knows the 98 bundled airports. With a SerpApi key, any IATA code works if you type it, e.g. `IXU`. Autocomplete still only suggests bundled airports.
+- Autocomplete and place names come from Travelpayouts' free public airport list (about 3,700 airports). The server downloads it at startup and keeps it in `data/airports-world.json` (ignored by Git) for 30 days. If the download fails, it falls back to the 98 bundled airports. Demo mode only has fares for those 98. Multi-airport city codes such as `LON` are used only to name Anywhere results, never for search.
 - In SerpApi's results, a "Separate tickets" itinerary should be checked one ticket at a time on Google Flights.
-- Travelpayouts prices are per adult and come from other users' recent searches, so routes few people search may have gaps.
+- Travelpayouts prices are per adult and come from other users' recent searches, so routes few people search may have gaps. The calendar always shows one-way fares, even for return trips: cached round-trip fares come with random trip lengths, so they mislead when you're picking a departure day.
 - Not built yet: multi-city trips, price-drop alerts (planned: a daily job that re-checks saved routes), deep booking links using `booking_token`.

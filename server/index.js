@@ -5,7 +5,7 @@ import express from 'express';
 import { ROOT, loadConfig } from './config.js';
 import { openDb } from './db.js';
 import { loadFees } from './fees-file.js';
-import { searchAirports } from './airports.js';
+import { searchPlaces, lookupPlace, loadWorldAirports } from './world-airports.js';
 import { createSearchService } from './search.js';
 
 const sha256 = (s) => crypto.createHash('sha256').update(String(s)).digest();
@@ -27,7 +27,7 @@ export function passwordGate(password) {
 
 export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchImpl } = {}) {
   const database = db || openDb(config.dbPath);
-  const svc = createSearchService({ db: database, config, fees, fetchImpl });
+  const svc = createSearchService({ db: database, config, fees, fetchImpl, lookupPlace });
   const app = express();
   app.disable('x-powered-by');
 
@@ -46,7 +46,7 @@ export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchI
   };
 
   app.get('/api/status', wrap(() => svc.status()));
-  app.get('/api/airports', wrap((req) => ({ airports: searchAirports(req.query.q) })));
+  app.get('/api/airports', wrap((req) => ({ airports: searchPlaces(req.query.q) })));
   app.get('/api/fees', wrap(() => fees));
   app.get('/api/search', wrap((req) => svc.search(req.query, { refresh: req.query.refresh === '1' })));
   app.get('/api/return', wrap((req) => svc.returnFlights(req.query, { refresh: req.query.refresh === '1' })));
@@ -68,6 +68,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log(`FareScope running at http://localhost:${config.port}`);
     console.log(`  live prices: ${svc.liveProvider}${svc.liveProvider === 'demo' ? ' (set SERPAPI_KEY for real fares)' : ''}`);
     console.log(`  password: ${config.appPassword ? 'on (APP_PASSWORD)' : 'off — anyone who can reach this server can spend your searches'}`);
+    loadWorldAirports();
     console.log(`  calendar/explore: ${svc.calendarProvider}${svc.calendarProvider === 'demo' ? ' (set TRAVELPAYOUTS_TOKEN for cached real fares)' : ''}`);
   });
 }
