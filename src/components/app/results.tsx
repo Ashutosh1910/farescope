@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect } from 'react';
 import {
-  ArrowRight, CalendarRange, Check, ChevronLeft, ChevronRight, Clock, FlaskConical, History, LineChart, Pencil,
+  CalendarRange, Check, ChevronLeft, ChevronRight, Clock, FlaskConical, History, LineChart, Pencil,
   RefreshCw, SearchX, SlidersHorizontal, TriangleAlert,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FiltersPanel } from './filters-panel';
 import { FlightCard, stopsText } from './flight-card';
+import { Plane } from 'lucide-react';
 import { Sparkline } from './sparkline';
 import { cn } from '@/lib/utils';
 import { clock, duration, money, prettyDate, shortMoney, timeAgo } from '@/lib/format';
@@ -34,27 +35,26 @@ function ResultsHeader() {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="flex flex-wrap items-center gap-x-2.5 text-2xl font-semibold tracking-tight sm:text-3xl">
-          <span>{res?.airports.from.city ?? query.from}</span>
-          <ArrowRight className="size-5 text-primary sm:size-6" />
-          <span>{res?.airports.to.city ?? query.to}</span>
+        <h1 className="flex flex-wrap items-center gap-x-3 font-data text-[28px] font-bold leading-tight sm:text-[36px]">
+          {query.from}<Plane className="size-6 text-muted-foreground" />{query.to}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {prettyDate(query.depart)}{query.return ? ` – ${prettyDate(query.return)}` : ' · one way'} · {pax} traveller{pax > 1 ? 's' : ''} · {cabin}
+        <p className="mt-1 text-muted-foreground">
+          {res ? `${res.airports.from.city} to ${res.airports.to.city}, ` : ''}{prettyDate(query.depart)}{query.return ? ` to ${prettyDate(query.return)}` : ', one way'}.{' '}
+          {pax} traveller{pax > 1 ? 's' : ''}, {cabin.toLowerCase()}.
         </p>
       </div>
       {list && (
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <Badge variant="outline" className="gap-1 font-normal"><Clock />{list.res.cached ? 'Cached' : 'Fresh'} · checked {timeAgo(list.res.fetchedAt)}</Badge>
-          {list.res.unpriced > 0 && <Badge variant="outline" className="font-normal">{list.res.unpriced} without a price hidden</Badge>}
+          <span className="inline-flex items-center gap-1.5 text-sm"><Clock className="size-4" />Prices checked {timeAgo(list.res.fetchedAt)}{list.res.cached ? ' (saved copy)' : ''}</span>
+          {list.res.unpriced > 0 && <span className="text-sm">{list.res.unpriced} without a price hidden</span>}
           {phase === 'outbound' && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="sm" disabled={loading} onClick={() => runSearch(query, { refresh: true })}>
-                  <RefreshCw className={cn(loading && 'animate-spin')} />Refresh
+                  <RefreshCw className={cn(loading && 'animate-spin')} />Check again
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{live ? 'Fetch fresh prices (uses 1 SerpApi search)' : 'Fetch fresh prices'}</TooltipContent>
+              <TooltipContent>{live ? 'Get fresh prices. Uses 1 SerpApi search.' : 'Get fresh prices'}</TooltipContent>
             </Tooltip>
           )}
         </div>
@@ -69,11 +69,11 @@ export function DemoNotice() {
   return (
     <Alert className="border-warning/40 bg-warning-soft text-warning-foreground [&>svg]:text-warning-foreground">
       <FlaskConical />
-      <AlertTitle>Demo fares</AlertTitle>
+      <AlertTitle>These are made-up prices</AlertTitle>
       <AlertDescription className="text-warning-foreground/90">
         {status.hosted
-          ? 'This hosted copy only has synthetic prices, not real fares. Run FareScope on your own machine with a SerpApi key for live Google Flights prices.'
-          : <>These prices are synthetic, so the app works without keys — not real fares. Add <code>SERPAPI_KEY</code> to <code>.env</code> for live Google Flights prices.</>}
+          ? 'This hosted copy runs on demo data. Run FareScope on your own computer with a SerpApi key to see live Google Flights prices.'
+          : <>FareScope is running without a SerpApi key, so it shows demo data. Add <code>SERPAPI_KEY</code> to <code>.env</code> to see live Google Flights prices.</>}
       </AlertDescription>
     </Alert>
   );
@@ -95,11 +95,11 @@ function CalendarStrip() {
   const t1 = prices[Math.floor(prices.length / 3)] ?? Infinity;
   const t2 = prices[Math.floor((prices.length * 2) / 3)] ?? Infinity;
   const min = prices[0];
-  const src = res?.source === 'demo' || (!res && status?.calendarProvider === 'demo') ? 'Demo data' : 'Cached fares from Travelpayouts · usually 2–7 days old';
+  const src = res?.source === 'demo' || (!res && status?.calendarProvider === 'demo') ? 'Made-up demo fares' : 'Fares other travellers found in the last few days (Travelpayouts)';
   return (
-    <section className="rounded-2xl border bg-card p-4 shadow-xs">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-sm font-semibold"><CalendarRange className="size-4 text-primary" />Cheapest days · {monthLabel(month)}</h2>
+    <section className="rounded-xl border bg-card p-4">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 font-semibold"><CalendarRange className="size-4" />Cheapest days in {monthLabel(month)}</h2>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" aria-label="Previous month" disabled={month <= today().slice(0, 7)} onClick={() => loadCalendar(query, addMonths(month, -1))}><ChevronLeft /></Button>
           <Button variant="ghost" size="icon" aria-label="Next month" onClick={() => loadCalendar(query, addMonths(month, 1))}><ChevronRight /></Button>
@@ -118,12 +118,12 @@ function CalendarStrip() {
               onClick={() => pickCalendarDay(ds)}
               aria-label={`${prettyDate(ds)}${info ? `, from ${money(info.price, query.currency)}, ${lvl === 'low' ? 'cheaper' : lvl === 'mid' ? 'average' : 'pricier'}` : ', no cached fare'}`}
               className={cn('flex w-[62px] shrink-0 snap-start flex-col items-center gap-0.5 rounded-xl border px-1 py-2 text-center transition-all disabled:opacity-35',
-                'enabled:hover:-translate-y-0.5 enabled:hover:border-primary/50 enabled:hover:shadow-sm',
+                'enabled:hover:border-foreground/40',
                 lvl === 'low' && 'border-transparent bg-success-soft', lvl === 'mid' && 'border-transparent bg-muted', lvl === 'high' && 'border-transparent bg-muted/40',
-                selected && 'ring-2 ring-primary ring-offset-2 ring-offset-card')}>
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{prettyDate(ds, { weekday: 'short' })}</span>
-              <span className="num text-base font-semibold leading-tight">{i + 1}</span>
-              <span className={cn('num text-[11px]', lvl === 'low' ? 'font-bold text-success' : 'text-muted-foreground')}>
+                selected && 'border-signal bg-signal text-signal-foreground')}>
+              <span className={cn('text-xs', selected ? 'text-signal-foreground/75' : 'text-muted-foreground')}>{prettyDate(ds, { weekday: 'short' })}</span>
+              <span className="font-data text-base font-bold leading-tight">{i + 1}</span>
+              <span className={cn('font-data text-[11px]', selected ? 'text-signal-foreground' : lvl === 'low' ? 'font-bold text-success' : 'text-muted-foreground')}>
                 {info ? `${info.price === min ? '★' : ''}${shortMoney(info.price, query.currency)}` : '·'}
               </span>
             </button>
@@ -136,7 +136,7 @@ function CalendarStrip() {
           <span className="flex items-center gap-1"><i className="size-2.5 rounded-sm bg-muted ring-1 ring-border" />Average</span>
           <span className="flex items-center gap-1"><i className="size-2.5 rounded-sm bg-muted/40 ring-1 ring-border" />Pricier</span>
         </span>
-        <span>{calendar.error ? `Calendar unavailable: ${calendar.error}` : `${src} · one-way fare per adult${query.return ? ' for the outbound day' : ''} · tap a day to search it`}</span>
+        <span>{calendar.error ? `The calendar didn’t load: ${calendar.error}` : `${src}. One-way, per adult${query.return ? ', for the outbound day' : ''}. Choose a day to search it.`}</span>
       </div>
     </section>
   );
@@ -156,9 +156,9 @@ function Insights() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {ins && (
-        <section className="rounded-2xl border bg-card p-4 shadow-xs">
-          <h2 className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-            <LineChart className="size-4 text-primary" />
+        <section className="rounded-xl border bg-card p-4">
+          <h2 className="flex flex-wrap items-center gap-2 font-semibold">
+            <LineChart className="size-4" />
             {level ? <>Prices are <span className={cn('rounded-md px-1.5 py-0.5 capitalize', levelCls)}>{level}</span> for these dates</> : 'Price insight'}
           </h2>
           <div className="mt-2 space-y-0.5 text-sm text-muted-foreground">
@@ -166,14 +166,14 @@ function Insights() {
             {ins.lowest != null && <p>Lowest right now: <span className="num font-semibold text-foreground">{money(ins.lowest, cur)}</span></p>}
           </div>
           {ins.history.length > 2 && <Sparkline points={ins.history} currency={cur} label="Price trend for these dates" />}
-          <p className="mt-2 text-[11px] text-muted-foreground">{out.res.source === 'demo' ? 'Demo data.' : 'From Google Flights via SerpApi.'}</p>
+          <p className="mt-2 text-[11px] text-muted-foreground">{out.res.source === 'demo' ? 'Made-up demo data.' : 'From Google Flights, through SerpApi.'}</p>
         </section>
       )}
       {pts.length > 0 && low && last && (
-        <section className="rounded-2xl border bg-card p-4 shadow-xs">
-          <h2 className="flex items-center gap-2 text-sm font-semibold"><History className="size-4 text-primary" />Your checks</h2>
+        <section className="rounded-xl border bg-card p-4">
+          <h2 className="flex items-center gap-2 font-semibold"><History className="size-4" />Your checks</h2>
           <div className="mt-2 space-y-0.5 text-sm text-muted-foreground">
-            <p>Searched {pts.length} time{pts.length > 1 ? 's' : ''} · latest <span className="num font-medium text-foreground">{money(last.price, cur)}</span> ({timeAgo(last.checkedAt)})</p>
+            <p>Searched {pts.length} time{pts.length > 1 ? 's' : ''}, latest <span className="num font-medium text-foreground">{money(last.price, cur)}</span> ({timeAgo(last.checkedAt)})</p>
             <p>Lowest you've seen: <span className="num font-semibold text-foreground">{money(low.price, cur)}</span>{low.airline ? ` on ${low.airline}` : ''}</p>
           </div>
           {pts.length > 2
@@ -189,9 +189,10 @@ function TripSteps() {
   const { query, phase, selectedOut, backToOutbound } = useApp();
   if (!query?.return) return null;
   const step = (n: number, title: string, date: string, state: 'current' | 'done' | 'todo', extra?: React.ReactNode) => (
-    <li className={cn('flex gap-3 rounded-2xl border bg-card p-3.5 transition-colors', state === 'current' && 'border-primary ring-3 ring-ring/20')}>
+    <li className={cn('relative flex gap-3 overflow-hidden rounded-xl border bg-card p-3.5', state === 'current' && 'border-foreground/40')}>
+      {state === 'current' && <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-signal" />}
       <span className={cn('grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold',
-        state === 'todo' ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground')}>
+        state === 'todo' ? 'bg-muted text-muted-foreground' : state === 'current' ? 'bg-signal text-signal-foreground' : 'bg-primary text-primary-foreground')}>
         {state === 'done' ? <Check className="size-4" /> : n}
       </span>
       <div className="min-w-0 flex-1">
@@ -204,15 +205,15 @@ function TripSteps() {
   return (
     <div className="space-y-2">
       <ol className="grid gap-2 sm:grid-cols-2">
-        {step(1, `Outbound · ${query.from} → ${query.to}`, query.depart, phase === 'outbound' ? 'current' : 'done',
+        {step(1, `Outbound, ${query.from} to ${query.to}`, query.depart, phase === 'outbound' ? 'current' : 'done',
           selectedOut && (
             <div className="mt-1.5 flex flex-wrap items-center gap-x-2 text-xs">
-              <span className="num font-medium">{clock(selectedOut.leg.departTime)}–{clock(selectedOut.leg.arriveTime)}</span>
-              <span className="text-muted-foreground">{selectedOut.primaryAirline} · {stopsText(selectedOut)}</span>
+              <span className="font-data font-bold">{clock(selectedOut.leg.departTime)}–{clock(selectedOut.leg.arriveTime)}</span>
+              <span className="text-muted-foreground">{selectedOut.primaryAirline}, {stopsText(selectedOut).toLowerCase()}</span>
               <Button variant="link" size="sm" className="h-auto px-0 text-xs" onClick={backToOutbound}><Pencil className="size-3" />Change</Button>
             </div>
           ))}
-        {step(2, `Return · ${query.to} → ${query.from}`, query.return, phase === 'return' ? 'current' : 'todo')}
+        {step(2, `Return, ${query.to} to ${query.from}`, query.return, phase === 'return' ? 'current' : 'todo')}
       </ol>
       <p className="px-1 text-xs text-muted-foreground">
         {phase === 'outbound' ? 'Prices are the total for the whole return trip, starting from the cheapest return flight.' : 'Prices are the round-trip total with this return flight.'}
@@ -225,7 +226,7 @@ function ListSkeleton() {
   return (
     <div className="space-y-3">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl border bg-card p-5">
+        <div key={i} className="rounded-xl border bg-card p-5">
           <div className="flex items-center gap-3"><Skeleton className="size-8 rounded-lg" /><Skeleton className="h-4 w-32" /></div>
           <div className="mt-4 flex items-center gap-4"><Skeleton className="h-8 w-16" /><Skeleton className="h-2 flex-1" /><Skeleton className="h-8 w-16" /><Skeleton className="ml-6 h-9 w-24" /></div>
         </div>
@@ -236,8 +237,8 @@ function ListSkeleton() {
 
 function EmptyState({ icon, title, children }: { icon: React.ReactNode; title: string; children?: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed bg-card/50 px-6 py-12 text-center">
-      <span className="mb-3 grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground [&_svg]:size-6">{icon}</span>
+    <div className="flex flex-col items-center rounded-xl border border-dashed bg-card/50 px-6 py-12 text-center">
+      <span className="mb-3 grid size-12 place-items-center rounded-lg bg-muted text-muted-foreground [&_svg]:size-6">{icon}</span>
       <h3 className="font-semibold">{title}</h3>
       <div className="mt-1 max-w-sm text-sm text-muted-foreground">{children}</div>
     </div>
@@ -270,24 +271,24 @@ function FlightList() {
   return (
     <div className="space-y-3">
       <div className="flex flex-col gap-2 sm:flex-row">
-        <div role="tablist" aria-label="Sort" className="grid flex-1 grid-cols-3 overflow-hidden rounded-2xl border bg-card shadow-xs">
+        <div role="tablist" aria-label="Sort" className="grid flex-1 grid-cols-3 overflow-hidden rounded-xl border bg-card">
           {tabs.map((k) => (
             <button key={k} type="button" role="tab" aria-selected={list.sort === k} onClick={() => updateList((l) => ({ ...l, sort: k }))}
               className={cn('relative flex flex-col items-start px-3 py-2.5 text-left transition-colors sm:px-4 [&+&]:border-l',
-                list.sort === k ? 'bg-accent/60' : 'hover:bg-muted/60')}>
-              <span className={cn('text-xs font-medium', list.sort === k ? 'text-primary' : 'text-muted-foreground')}>{SORTS[k]}</span>
+                list.sort === k ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/60')}>
+              <span className={cn('text-sm', list.sort === k ? 'font-semibold' : 'text-muted-foreground')}>{SORTS[k]}</span>
               {summary ? (
                 <>
-                  <span className="num text-base font-semibold sm:text-lg">{money(summary[k].price, query.currency)}</span>
-                  <span className="num text-[11px] text-muted-foreground">{duration(summary[k].durationMin)}</span>
+                  <span className="font-data text-base font-bold sm:text-lg">{money(summary[k].price, query.currency)}</span>
+                  <span className={cn('font-data text-xs', list.sort === k ? 'opacity-75' : 'text-muted-foreground')}>{duration(summary[k].durationMin)}</span>
                 </>
               ) : <span className="text-sm text-muted-foreground">—</span>}
-              {list.sort === k && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary" />}
+              {list.sort === k && <span className="absolute inset-x-0 bottom-0 h-1 bg-signal" />}
             </button>
           ))}
         </div>
         <Select value={list.sort} onValueChange={(v) => updateList((l) => ({ ...l, sort: v as SortKey }))}>
-          <SelectTrigger className="h-auto min-h-11 rounded-2xl bg-card sm:w-48" aria-label="Sort by"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-auto min-h-11 rounded-xl bg-card sm:w-52" aria-label="Sort by"><SelectValue /></SelectTrigger>
           <SelectContent>{(Object.entries(SORTS) as [SortKey, string][]).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
         </Select>
       </div>
@@ -300,10 +301,17 @@ function FlightList() {
         </EmptyState>
       ) : (
         <div className="space-y-3">
-          {sorted.slice(0, list.shown).map((f, i) => (
-            <FlightCard key={f.id} flight={f} query={query} showEst={showEst} cheapest={cheapest} fastest={fastest}
-              actionLabel={action} onSelect={() => chooseFlight(f)} index={i} />
-          ))}
+          <div className="overflow-hidden rounded-xl border bg-card">
+            <div aria-hidden className="hidden grid-cols-[10.5rem_minmax(0,1fr)_7.5rem_minmax(11rem,auto)] gap-x-6 border-b bg-muted/50 px-5 py-2 text-sm text-muted-foreground md:grid">
+              <span>Departs – arrives</span><span>Airline</span><span>Duration</span><span className="text-right">{showEst ? 'Estimated total' : 'Price'}</span>
+            </div>
+            <div className="divide-y">
+              {sorted.slice(0, list.shown).map((f, i) => (
+                <FlightCard key={f.id} flight={f} query={query} showEst={showEst} cheapest={cheapest} fastest={fastest}
+                  actionLabel={action} onSelect={() => chooseFlight(f)} index={i} />
+              ))}
+            </div>
+          </div>
           {sorted.length > list.shown && (
             <div className="flex justify-center pt-2">
               <Button variant="outline" onClick={() => updateList((l) => ({ ...l, shown: l.shown + PAGE }))}>
@@ -339,7 +347,7 @@ export function Results() {
       <Insights />
       <TripSteps />
       <div className="grid items-start gap-5 lg:grid-cols-[280px_1fr]">
-        <aside className="sticky top-20 hidden max-h-[calc(100vh-6rem)] overflow-y-auto rounded-2xl border bg-card p-4 shadow-xs lg:block" aria-label="Filters">
+        <aside className="sticky top-20 hidden max-h-[calc(100vh-6rem)] overflow-y-auto rounded-xl border bg-card p-4 lg:block" aria-label="Filters">
           {panel(false) || (loading ? <div className="space-y-3">{[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 w-full" />)}</div> : null)}
         </aside>
         <div className="min-w-0 space-y-3">

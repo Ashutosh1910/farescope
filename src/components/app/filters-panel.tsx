@@ -52,7 +52,7 @@ export function FiltersPanel({ flights, filters, onChange, showEst, currency, in
         value={[...filters[key]]} onValueChange={(v) => set({ [key]: new Set(v) } as Partial<Filters>)}>
         {WINDOWS.map((w: { id: string; label: string; hint: string }) => (
           <ToggleGroupItem key={w.id} value={w.id} aria-label={`${w.label} ${w.hint}`}
-            className="h-auto flex-col gap-0.5 rounded-lg py-2 data-[state=on]:border-primary data-[state=on]:bg-accent data-[state=on]:text-accent-foreground">
+            className="h-auto flex-col gap-0.5 rounded-md py-2 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground [&[data-state=on]_.text-muted-foreground]:text-primary-foreground/70">
             <span className="flex items-center gap-1.5 text-xs font-medium [&_svg]:size-3.5">{WINDOW_ICONS[w.id]}{w.label}</span>
             <span className="num text-[10px] font-normal text-muted-foreground">{w.hint.replace(/:00|:59/g, '')}</span>
           </ToggleGroupItem>

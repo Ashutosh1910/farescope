@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Check, Clock, Globe2, MapPin, PlaneLanding, PlaneTakeoff, Sparkles, TrendingUp } from 'lucide-react';
+import { Check, Clock, Globe2, MapPin, PlaneLanding, PlaneTakeoff, TrendingUp } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FieldShell } from './field-shell';
+import { FlapText } from './flap-text';
 import { api } from '@/lib/api';
 import { store } from '@/lib/store';
 import type { Airport } from '@/lib/types';
@@ -22,12 +23,12 @@ const POPULAR: Airport[] = [
 function AirportRow({ a, selected, icon }: { a: Airport; selected: boolean; icon?: React.ReactNode }) {
   return (
     <>
-      <span className="grid h-8 min-w-11 place-items-center rounded-md bg-muted px-1.5 text-xs font-bold tracking-wide text-muted-foreground group-data-selected/command-item:bg-background">
+      <span className="grid h-8 min-w-12 place-items-center rounded-[4px] bg-signboard px-1.5 font-data text-sm font-bold text-signal">
         {icon ?? a.code}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-medium">{a.city}</span>
-        <span className="truncate text-xs text-muted-foreground">{a.name}{a.country ? ` · ${a.country}` : ''}</span>
+        <span className="truncate text-xs text-muted-foreground">{a.name}{a.country ? `, ${a.country}` : ''}</span>
       </span>
       {selected && <Check className="size-4 text-primary" />}
     </>
@@ -91,9 +92,11 @@ export function AirportField({ kind, value, onChange, open, onOpenChange, exclud
         <FieldShell
           label={kind === 'from' ? 'From' : 'To'}
           icon={<Icon />}
+          size="code"
+          className={kind === 'to' ? 'sm:pl-7' : undefined}
           placeholder={!value}
-          display={value ? (isAny ? <span className="inline-flex items-center gap-1.5"><Sparkles className="size-4 text-primary" />Anywhere</span> : <>{value.city} <span className="font-medium text-muted-foreground">{value.code}</span></>) : kind === 'from' ? 'Where from?' : 'Where to?'}
-          hint={value ? (isAny ? 'Cheapest places this month' : value.name) : kind === 'from' ? 'City or airport' : 'City, airport or Anywhere'}
+          display={value ? (isAny ? <span className="text-[32px]">Anywhere</span> : <FlapText text={value.code} />) : '———'}
+          hint={value ? (isAny ? 'The cheapest places this month' : <span title={value.name}>{value.city}</span>) : kind === 'from' ? 'Choose a city or airport' : 'Choose a city, airport or Anywhere'}
           aria-label={`${kind === 'from' ? 'From' : 'To'}: ${value ? (isAny ? 'Anywhere' : `${value.city} (${value.code})`) : 'not set'}`}
         />
       </PopoverTrigger>

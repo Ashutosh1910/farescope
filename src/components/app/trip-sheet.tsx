@@ -24,21 +24,21 @@ function SellerRow({ o, shown, best, currency, showEst, demo }: { o: SellerOptio
   const feeText = !e ? '' : e.applied
     ? (showEst ? `fare ${money(o.price, currency)} + fee ${money(e.fee, currency)}` : `≈ ${money(e.total, currency)} with fees`)
     : showEst && e.status === 'not-configured' ? 'fee not set' : '';
-  const meta = [o.title, ...o.extensions].filter(Boolean).join(' · ');
+  const meta = [o.title, ...o.extensions].filter(Boolean).join(', ');
   return (
-    <li className={cn('grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-1 px-4 py-3', best && 'bg-success-soft/60')}>
+    <li className={cn('relative grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-1 px-4 py-3', best && 'bg-success-soft/50')}>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{o.seller}</span>
-          {o.isAirline && <Badge className="bg-primary/12 text-primary">Airline</Badge>}
+          {o.isAirline && <Badge variant="secondary" className="rounded-[4px]">Airline</Badge>}
           {best && <Badge className="bg-success-soft text-success">Cheapest</Badge>}
           {o.separateTickets && <Badge className="bg-warning-soft text-warning-foreground">Separate tickets</Badge>}
         </div>
         {meta && <div className="truncate text-xs text-muted-foreground">{meta}</div>}
       </div>
       <div className="text-right">
-        <div className="num text-[15px] font-semibold">{shown == null ? 'See site' : money(shown, currency)}</div>
-        {feeText && <div className={cn('text-[11px]', e?.applied ? 'font-medium text-primary' : 'text-muted-foreground')}>{feeText}</div>}
+        <div className="font-data text-[15px] font-bold">{shown == null ? 'See site' : money(shown, currency)}</div>
+        {feeText && <div className={cn('text-xs', e?.applied ? 'text-foreground' : 'text-muted-foreground')}>{feeText}</div>}
       </div>
       <div className="flex flex-col gap-1">
         {o.requests.length ? o.requests.map((r, k) => (
@@ -88,14 +88,14 @@ function Sellers({ flight, query, live }: { flight: Flight; query: Query; live: 
   const diff = airline?.price != null && best != null ? shown(airline)! - best : 0;
 
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card">
+    <section className="overflow-hidden rounded-xl border bg-card">
       <div className="flex items-start gap-3 border-b px-4 py-3.5">
-        <span className="grid size-9 place-items-center rounded-xl bg-accent text-accent-foreground"><Store className="size-4.5" /></span>
+        <span className="grid size-9 place-items-center rounded-md bg-muted"><Store className="size-[18px]" /></span>
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold">Compare sellers</h3>
           <p className="text-xs text-muted-foreground">
-            {res ? <>{res.options.length} seller{res.options.length === 1 ? '' : 's'} · cheapest <strong className="num text-foreground">{best == null ? '—' : money(best, query.currency)}</strong>
-              {airline ? (diff > 0 ? ` · ${money(diff, query.currency)} less than ${airline.seller}'s site` : ` · ${airline.seller}'s own site is cheapest`) : ''}</>
+            {res ? <>{res.options.length} seller{res.options.length === 1 ? '' : 's'}, cheapest <strong className="font-data text-foreground">{best == null ? '—' : money(best, query.currency)}</strong>.
+              {airline ? (diff > 0 ? ` That’s ${money(diff, query.currency)} less than ${airline.seller}’s own site.` : ` ${airline.seller}’s own site is the cheapest.`) : ''}</>
               : 'The airline and travel sites selling this exact trip'}
           </p>
         </div>
@@ -123,9 +123,9 @@ function Sellers({ flight, query, live }: { flight: Flight; query: Query; live: 
           <>
             <ul className="divide-y">{sorted.map((o, i) => <SellerRow key={`${o.seller}-${i}`} o={o} shown={shown(o)} best={shown(o) != null && shown(o) === best} currency={query.currency} showEst={showEst} demo={res.source === 'demo'} />)}</ul>
             <div className="space-y-1.5 border-t bg-muted/30 px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
-              {res.baggage.length > 0 && <p className="flex items-center gap-1.5"><Luggage className="size-3.5" />{res.baggage.join(' · ')}</p>}
+              {res.baggage.length > 0 && <p className="flex items-center gap-1.5"><Luggage className="size-3.5" />{res.baggage.join(', ')}</p>}
               <p>
-                {res.source === 'demo' && <strong className="text-warning-foreground">Demo data with made-up sellers — not real offers. </strong>}
+                {res.source === 'demo' && <strong className="text-warning-foreground">These sellers and prices are made up. </strong>}
                 Only sellers that partner with Google Flights appear, so some (e.g. MakeMyTrip, HappyFares) may be missing. Prices are totals for all travellers including taxes; a site's own fee is added only where set in <code>data/fees.json</code>. Checked {timeAgo(res.fetchedAt)}.
               </p>
             </div>
@@ -138,18 +138,18 @@ function Sellers({ flight, query, live }: { flight: Flight; query: Query; live: 
 
 function LegSummary({ flight, label }: { flight: Flight; label: string }) {
   return (
-    <Collapsible className="rounded-2xl border bg-card">
+    <Collapsible className="rounded-xl border bg-card">
       <div className="p-4">
-        <div className="mb-2.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">{label} · {prettyDate(dateOf(flight.leg.departTime))}</div>
+        <div className="mb-2.5 text-sm text-muted-foreground"><span className="font-semibold text-foreground">{label}</span>, {prettyDate(dateOf(flight.leg.departTime))}</div>
         <div className="flex items-center gap-3">
           <AirlineLogo flight={flight} size={38} />
           <div className="min-w-0 flex-1">
-            <div className="num flex items-center gap-2 font-semibold">
+            <div className="flex items-center gap-2 font-data font-bold">
               {clock(flight.leg.departTime)} {flight.leg.segments[0].from.code}
               <ArrowRight className="size-3.5 text-muted-foreground" />
               {clock(flight.leg.arriveTime)} {flight.leg.segments[flight.leg.segments.length - 1].to.code}
             </div>
-            <div className="truncate text-xs text-muted-foreground">{flight.airlines.join(' + ')} · {duration(flight.leg.durationMin)} · {stopsText(flight)}</div>
+            <div className="truncate text-xs text-muted-foreground">{flight.airlines.join(' + ')}, {duration(flight.leg.durationMin)}, {stopsText(flight).toLowerCase()}</div>
           </div>
         </div>
         <CollapsibleTrigger asChild>
@@ -173,17 +173,17 @@ export function TripSheet() {
       <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
         <SheetHeader className="border-b px-5 py-4">
           <SheetTitle className="flex items-center gap-2 text-lg"><Plane className="size-5 rotate-45 text-primary" />Your trip</SheetTitle>
-          <SheetDescription>{query ? `${query.from} → ${query.to}${query.return ? ' · return' : ' · one way'}` : ''}</SheetDescription>
+          <SheetDescription>{query ? `${query.from} to ${query.to}, ${query.return ? 'return' : 'one way'}` : ''}</SheetDescription>
         </SheetHeader>
         {trip && query && priced && e && (
           <>
             <ScrollArea className="min-h-0 flex-1">
               <div className="space-y-4 p-5">
                 {trip.legs.map((f, i) => <LegSummary key={f.id + i} flight={f} label={trip.legs.length > 1 ? (i ? 'Return' : 'Outbound') : 'Flight'} />)}
-                <div className="space-y-2 rounded-2xl bg-muted/50 p-4 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Fare incl. taxes (all travellers)</span><strong className="num">{money(e.fare, cur)}</strong></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Convenience fee (est.)</span><strong className="num">{e.applied ? money(e.fee, cur) : '—'}</strong></div>
-                  <div className="flex items-baseline justify-between border-t pt-2 text-base"><span className="font-semibold">Estimated total</span><strong className="num text-xl">{money(e.total, cur)}</strong></div>
+                <div className="space-y-2 rounded-xl bg-muted/60 p-4 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Fare incl. taxes (all travellers)</span><strong className="font-data">{money(e.fare, cur)}</strong></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Convenience fee (est.)</span><strong className="font-data">{e.applied ? money(e.fee, cur) : '—'}</strong></div>
+                  <div className="flex items-baseline justify-between border-t pt-2 text-base"><span className="font-semibold">Estimated total</span><strong className="font-data text-[21px]">{money(e.total, cur)}</strong></div>
                   <p className="text-xs leading-relaxed text-muted-foreground">
                     {e.note}{e.applied && e.status === 'unverified' ? ' — not yet verified in fees.json' : ''}{e.note ? '. ' : ''}
                     Bags, seats and meals are extra. Prices checked {res ? timeAgo(res.fetchedAt) : 'recently'}{res?.source === 'demo' ? ' (demo data — not a real fare)' : ''}.

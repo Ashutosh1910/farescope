@@ -6,7 +6,7 @@ It doesn't sell tickets. To book, use the links to Google Flights and the airlin
 
 ## Run it
 
-Needs Node 22.13 or newer. The server is Express with Node's built-in `node:sqlite`. The web app is React + TypeScript, built with Vite and styled with Tailwind and [shadcn/ui](https://ui.shadcn.com) components.
+Needs Node 22.13 or newer. The server is Express with Node's built-in `node:sqlite`. The web app is React + TypeScript, built with Vite and styled with Tailwind and [shadcn/ui](https://ui.shadcn.com) components (see Design below).
 
 ```bash
 npm install
@@ -64,6 +64,17 @@ Free-plan limits:
 - For lasting history, use a paid instance with a persistent disk and set `DB_PATH` to a file on that disk.
 
 `render.yaml` turns off Render's own auto-deploy (`autoDeployTrigger: "off"`) so that deploys happen only after CI passes. If Render rejects that line, set **Auto-Deploy** to **Off** in the service settings instead.
+
+## Design
+
+FareScope borrows the language of airport wayfinding signs, the thing every traveller reads under pressure:
+
+- **The search is a sign:** a slate panel where the airport codes appear large in signal yellow and flip like a departure board when you change them. It's the only bold element, and the only automatic motion (turned off when your system asks for reduced motion).
+- **Results are a departure board:** one panel of rows rather than separate cards, so twenty flights scan quickly. A yellow edge marks the top picks.
+- **Colour has jobs:** concrete `#E9ECEA` page, paper `#F9FAF9` surfaces, slate `#1D2D35` signs and buttons, signal yellow `#FFC629` only for codes, chosen dates and the Search button, runway green `#1E7F55` only for "cheaper" and "direct".
+- **Type:** [B612](https://b612-font.com), the typeface Airbus made for cockpit displays, for codes, times and prices; Atkinson Hyperlegible Next for everything else. Labels are sentence case with a pictogram.
+
+Tokens live in `src/index.css` (light and dark).
 
 ## Features
 

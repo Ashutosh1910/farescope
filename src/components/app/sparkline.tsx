@@ -54,7 +54,7 @@ export function Sparkline({ points, currency, label }: { points: { ts: number; p
       )}
       <figcaption className="mt-1 flex justify-between text-xs text-muted-foreground">
         <span>{label}</span>
-        <span className="num">low {shortMoney(y0, currency)} · high {shortMoney(y1, currency)}</span>
+        <span className="num">low {shortMoney(y0, currency)}, high {shortMoney(y1, currency)}</span>
       </figcaption>
     </figure>
   );

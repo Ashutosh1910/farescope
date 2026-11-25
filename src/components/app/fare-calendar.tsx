@@ -67,10 +67,10 @@ function Month({ month, route, lazy, depart, ret, focusDate, previewEnd, onPick,
 
   return (
     <div ref={ref} role="group" aria-label={title} className="w-full sm:w-[322px]">
-      <div className="sticky top-0 z-[1] bg-popover pb-2 pt-1 text-center text-sm font-semibold max-sm:text-left max-sm:text-base">{title}</div>
+      <div className="sticky top-0 z-[1] bg-popover pb-2 pt-1 text-center font-semibold max-sm:text-left">{title}</div>
       <div className="grid grid-cols-7 gap-y-1">
         {WEEKDAYS.map((w, i) => (
-          <span key={w} aria-hidden className={cn('pb-1 text-center text-[11px] font-medium text-muted-foreground', i > 4 && 'text-primary')}>{w}</span>
+          <span key={w} aria-hidden className={cn('pb-1 text-center text-xs text-muted-foreground', i > 4 && 'font-semibold text-foreground')}>{w}</span>
         ))}
         {monthCells(month).map((ds: string | null, i: number) => {
           if (!ds) return <span key={`b${i}`} aria-hidden />;
@@ -89,19 +89,19 @@ function Month({ month, route, lazy, depart, ret, focusDate, previewEnd, onPick,
               aria-label={label} aria-pressed={isStart || ds === ret}
               onClick={() => onPick(ds)} onPointerEnter={() => onHover(ds)}
               className={cn(
-                'relative flex h-[52px] flex-col items-center justify-center gap-0.5 text-[15px] font-medium outline-none transition-colors num max-sm:h-14',
-                'rounded-lg focus-visible:z-[1] focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default disabled:opacity-30',
+                'relative flex h-[52px] flex-col items-center justify-center gap-0.5 font-data text-[15px] outline-none transition-colors max-sm:h-14',
+                'rounded-md focus-visible:z-[1] focus-visible:ring-2 focus-visible:ring-foreground/60 disabled:cursor-default disabled:opacity-30',
                 !isStart && !isEnd && !isPreviewEnd && !inRange && '[@media(hover:hover)]:hover:bg-muted',
-                inRange && 'rounded-none bg-accent',
-                (isStart || isEnd || isPreviewEnd) && 'bg-primary text-primary-foreground shadow-sm',
+                inRange && 'rounded-none bg-signal-soft',
+                (isStart || isEnd || isPreviewEnd) && 'bg-signal font-bold text-signal-foreground',
                 isStart && hasRange && 'rounded-r-none',
                 (isEnd || isPreviewEnd) && hasRange && 'rounded-l-none',
-                ds === t && 'underline decoration-primary decoration-2 underline-offset-4',
+                ds === t && 'underline decoration-foreground/50 decoration-2 underline-offset-4',
               )}>
               <span className="leading-none">{Number(ds.slice(8))}</span>
               <span className={cn('min-h-3 text-[10px] leading-none text-muted-foreground',
                 lvl === 'lvl-low' && 'font-bold text-success',
-                (isStart || isEnd || isPreviewEnd) && 'text-primary-foreground/90',
+                (isStart || isEnd || isPreviewEnd) && 'text-signal-foreground/80',
                 !days && visible && route && !disabled && 'mx-auto h-2 w-6 animate-pulse rounded bg-muted')}>
                 {info && !disabled ? <>{cheapest ? '★ ' : ''}{shortMoney(info.price, route?.currency)}</> : ''}
               </span>
@@ -216,10 +216,11 @@ export function FareCalendar({ depart, ret, trip, active, onActiveChange, onChan
           setFocusDate(clamp((which === 'return' ? r || depart : depart) || t));
           wantFocus.current = true;
         }}
-        className={cn('flex flex-1 flex-col rounded-xl border px-3.5 py-2 text-left transition-colors sm:flex-none sm:min-w-40',
-          active === which ? 'border-primary bg-accent' : 'border-transparent hover:bg-muted')}>
-        <span className={cn('text-[11px] font-medium uppercase tracking-[0.08em]', active === which ? 'text-primary' : 'text-muted-foreground')}>{label}</span>
-        <span className={cn('text-[15px] font-semibold', !v && 'font-normal text-muted-foreground')}>{text}</span>
+        className={cn('relative flex flex-1 flex-col overflow-hidden rounded-lg border px-3.5 py-2 text-left transition-colors sm:min-w-44 sm:flex-none',
+          active === which ? 'border-foreground/40 bg-muted/60' : 'border-transparent hover:bg-muted')}>
+        {active === which && <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-signal" />}
+        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className={cn('font-data text-[15px] font-bold', !v && 'font-sans font-normal text-muted-foreground')}>{text}</span>
       </button>
     );
   };
@@ -230,9 +231,9 @@ export function FareCalendar({ depart, ret, trip, active, onActiveChange, onChan
         <div className="flex flex-1 gap-1.5">{tab('depart', 'Departure')}{tab('return', 'Return')}</div>
         {mobile && <Button variant="ghost" size="icon" onClick={onDone} aria-label="Close calendar"><X /></Button>}
       </div>
-      <p className="mb-2 mt-2.5 px-1 text-xs text-muted-foreground">
+      <p className="mb-2 mt-2.5 px-1 text-sm text-muted-foreground">
         {shownRoute
-          ? <><strong className="font-semibold text-foreground">{shownRoute.from} → {shownRoute.to}</strong> · lowest one-way fare per adult, from recent searches</>
+          ? <><strong className="font-data text-foreground">{shownRoute.from} to {shownRoute.to}</strong>: the lowest one-way fare per adult that travellers found recently.</>
           : 'Choose From and To to see the lowest fare on each day.'}
       </p>
       <div className={cn('relative flex gap-2', mobile && 'min-h-0 flex-1')}>
@@ -254,9 +255,9 @@ export function FareCalendar({ depart, ret, trip, active, onActiveChange, onChan
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3 text-sm">
         <span aria-live="polite" className="min-w-24 font-semibold">{summary}</span>
-        {shownRoute && <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><span className="size-2.5 rounded-sm bg-success" />Lowest fares</span>}
+        {shownRoute && <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"><span className="size-2.5 rounded-sm bg-success" />Cheaper days</span>}
         {isReturn && (
-          <button type="button" className="text-sm font-medium text-primary hover:underline" onClick={() => { onChange({ depart, ret: '', trip: 'oneway' }); onActiveChange('depart'); }}>
+          <button type="button" className="text-sm font-semibold underline underline-offset-4 hover:no-underline" onClick={() => { onChange({ depart, ret: '', trip: 'oneway' }); onActiveChange('depart'); }}>
             Make it one way
           </button>
         )}
