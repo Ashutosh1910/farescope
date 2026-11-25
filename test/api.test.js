@@ -28,7 +28,9 @@ test('HTTP API end to end (demo)', async (t) => {
   [s, body] = await get('/api/nope');
   assert.equal(s, 404);
 
-  const page = await fetch(base + '/');
+  // The page needs `npm run build`; without it the server says so instead of failing obscurely.
+  const page = await fetch(base + '/?from=BOM');
+  assert.ok([200, 503].includes(page.status));
   assert.match(await page.text(), /FareScope/);
 });
 
@@ -47,4 +49,16 @@ test('APP_PASSWORD protects pages and API but not /healthz', async (t) => {
   assert.equal((await fetch(`${base}/api/status`, auth('wrong'))).status, 401);
   assert.equal((await fetch(`${base}/api/status`, auth('s3cret'))).status, 200);
   assert.equal((await fetch(`${base}/`, auth('s3cret'))).status, 200);
+});
+
+test('REQUIRE_WEB makes /healthz fail when the web app is missing', async (t) => {
+  const { config, db, fees } = setup({ DEMO: '1' });
+  const fs = await import('node:fs');
+  const built = fs.existsSync(new URL('../dist/index.html', import.meta.url));
+  process.env.REQUIRE_WEB = '1';
+  t.after(() => { delete process.env.REQUIRE_WEB; });
+  const server = createApp({ config, db, fees }).listen(0);
+  t.after(() => server.close());
+  const r = await fetch(`http://127.0.0.1:${server.address().port}/healthz`);
+  assert.equal(r.status, built ? 200 : 503);
 });

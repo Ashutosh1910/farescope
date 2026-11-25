@@ -42,7 +42,14 @@ export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchI
       /* not a Render build */
     }
   }
-  app.get('/healthz', (req, res) => res.type('text').send(commit ? `ok ${commit}` : 'ok'));
+  // With REQUIRE_WEB=1 (set on Render) a deploy without the built web app reports unhealthy,
+  // so Render keeps the previous version live instead of serving a blank site.
+  const webBuilt = () => fs.existsSync(path.join(ROOT, 'dist', 'index.html'));
+  app.get('/healthz', (req, res) => {
+    if (process.env.REQUIRE_WEB === '1' && !webBuilt()) return res.status(503).type('text').send('web app not built');
+    // "no-web" tells the deploy workflow the server is up but the React app wasn't built.
+    res.type('text').send(['ok', commit, webBuilt() ? '' : 'no-web'].filter(Boolean).join(' '));
+  });
   if (config.appPassword) app.use(passwordGate(config.appPassword));
 
   const wrap = (fn) => async (req, res) => {
@@ -66,7 +73,15 @@ export function createApp({ config = loadConfig(), db, fees = loadFees(), fetchI
   app.get('/api/history', wrap((req) => svc.history(req.query)));
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
-  app.use(express.static(path.join(ROOT, 'public'), { extensions: ['html'] }));
+  // The React app, built by `npm run build` into dist/. Hashed assets can be cached for a long time.
+  const web = path.join(ROOT, 'dist');
+  app.use('/assets', express.static(path.join(web, 'assets'), { immutable: true, maxAge: '1y', fallthrough: false }));
+  app.use(express.static(web, { index: false }));
+  app.get('*', (req, res) => {
+    const index = path.join(web, 'index.html');
+    if (!fs.existsSync(index)) return res.status(503).type('text').send('FareScope: the web app is not built yet. Run `npm run build`.');
+    res.set('Cache-Control', 'no-cache').sendFile(index);
+  });
   app.locals.db = database;
   return app;
 }

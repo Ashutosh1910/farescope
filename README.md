@@ -6,13 +6,16 @@ It doesn't sell tickets. To book, use the links to Google Flights and the airlin
 
 ## Run it
 
-Needs Node 22.13 or newer. The only dependency is Express. Data is stored with Node's built-in `node:sqlite`.
+Needs Node 22.13 or newer. The server is Express with Node's built-in `node:sqlite`. The web app is React + TypeScript, built with Vite and styled with Tailwind and [shadcn/ui](https://ui.shadcn.com) components.
 
 ```bash
 npm install
 cp .env.example .env   # add your keys (optional)
+npm run build          # build the web app into dist/
 npm start              # http://localhost:3000
 ```
+
+While working on the UI, `npm run dev` runs the API server and Vite's dev server together (http://localhost:5173, with instant reloads). `npm run typecheck` checks the TypeScript.
 
 If you're behind an HTTP proxy, start it with `NODE_USE_ENV_PROXY=1 npm start` (Node 22.21 or newer). Node's built-in `fetch` ignores `HTTPS_PROXY` otherwise.
 
@@ -29,7 +32,7 @@ The two keys work independently. For example, you can use live SerpApi search al
 
 `.github/workflows/deploy.yml` runs the tests on every push and pull request. On every push to `main` it also deploys a **static demo build** to GitHub Pages.
 
-GitHub Pages can only host static files, so it can't run the Express server. The build (`npm run build:static` → `dist/`) bundles the search code into the page so it runs in the browser. The hosted copy **always uses demo data**: a public page must never contain your SerpApi or Travelpayouts key, because anyone could read it from the page source. Price history is kept in each visitor's own browser.
+GitHub Pages can only host static files, so it can't run the Express server. The static build (`npm run build:static` → `dist/`) bundles the search code into the web app so it runs in the browser. The hosted copy **always uses demo data**: a public page must never contain your SerpApi or Travelpayouts key, because anyone could read it from the page source. Price history is kept in each visitor's own browser.
 
 One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**. Then push to `main` (or run the workflow by hand from the Actions tab). The site will be at `https://<user>.github.io/<repo>/`.
 
@@ -64,6 +67,8 @@ Free-plan limits:
 
 ## Features
 
+- **Fast search flow:** the airport picker is a command palette with recent and popular airports. Picking From moves straight to To, then to the dates. Press `/` anywhere to start a search. The browser's Back button returns to your previous search.
+- **Looks after itself:** light, dark or system theme; on phones the search form folds into a one-line summary after searching, and filters open in a sheet with a "Show N flights" button.
 - **Date picker:** a fare calendar showing two months side by side, or a full-screen list of months on a phone. Each day shows its lowest cached one-way fare, with the cheapest days in green and a ★ on the cheapest day of the month. Departure and return are picked as one range, with a hover preview and a nights count. While you pick the return, it shows fares for the return direction. Works fully by keyboard: arrows, Page Up/Down, Home/End, Esc.
 - **Search:** return or one way, airport autocomplete, swap button, up to 9 travellers (adults, children, infants in a seat or on a lap), 4 cabin classes, 6 currencies.
 - **Return trips:** pick an outbound flight, then a return flight. This matches how Google Flights' `departure_token` works.
@@ -107,11 +112,16 @@ server/
     serpapi.js        Google Flights via SerpApi -> normalized flights
     travelpayouts.js  Aviasales Data API (prices_for_dates) -> calendar / explore
     demo.js           fake data, same every time, for running without keys
-public/               UI written in plain JavaScript (no build step for the server version)
-  js/api.js           calls the server, or the in-browser search code on the static build
-  js/filters.js       filter/sort logic with no page code (unit-tested)
+src/                  the React web app (built into dist/ by Vite)
+  App.tsx             page shell: header, hero + search card, results / explore / landing
+  state/app.tsx       app state and actions: search, return leg, filters, calendar, explore, URL + Back button
+  components/app/     FareScope's components (search card, airport picker, fare calendar, flight card,
+                      filters, results, trip sheet with Compare sellers, explore, sparkline, …)
+  components/ui/      shadcn/ui components (added with `npx shadcn add …`)
+  lib/api.ts          calls the server, or the in-browser search code on the Pages build
+  lib/filters.js      filter/sort logic with no page code (unit-tested); format.js, dates.js likewise
+  index.css           Tailwind + the FareScope theme (light and dark)
 static/backend.js     in-browser search code for the Pages build (demo provider only)
-scripts/build-static.mjs  builds dist/ with esbuild
 data/airports.json    98 bundled airports with coordinates (used by demo data, and preferred in search)
 server/world-airports.js  downloads and caches the world airport list
 data/fees.json        your fee table

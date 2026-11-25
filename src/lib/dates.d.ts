@@ -1,0 +1,12 @@
+export const MAX_DAYS_AHEAD: number;
+export function iso(d: Date): string;
+export function parseIso(s: string): Date;
+export function addDaysIso(s: string, n: number): string;
+export function monthOf(s: string): string;
+export function addMonths(month: string, n: number): string;
+export function daysInMonth(month: string): number;
+export function shiftByMonths(s: string, n: number): string;
+export function weekdayMon(s: string): number;
+export function nightsBetween(a: string, b: string): number;
+export function monthCells(month: string): (string | null)[];
+export function fareLevels(days: Record<string, { price: number }>): (price: number) => '' | 'lvl-low' | 'lvl-mid' | 'lvl-high';

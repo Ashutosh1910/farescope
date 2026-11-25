@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addMonths, daysInMonth, shiftByMonths, weekdayMon, monthCells, nightsBetween, fareLevels, addDaysIso } from '../public/js/datepicker.js';
+import { addMonths, daysInMonth, shiftByMonths, weekdayMon, monthCells, nightsBetween, fareLevels, addDaysIso } from '../src/lib/dates.js';
 
 test('month and day arithmetic', () => {
   assert.equal(addMonths('2026-12', 1), '2027-01');

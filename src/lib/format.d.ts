@@ -1,0 +1,11 @@
+export function money(n: number | null | undefined, currency?: string): string;
+export function shortMoney(n: number | null | undefined, currency?: string): string;
+export function duration(min: number | null | undefined): string;
+export function clock(t: string): string;
+export function dateOf(t: string): string;
+export function dayDiff(fromTime: string, toTime: string): number;
+export function prettyDate(iso: string, opts?: Intl.DateTimeFormatOptions): string;
+export function timeAgo(ms: number, now?: number): string;
+export function addDays(iso: string, n: number): string;
+export function esc(s: unknown): string;
+export function airlineCode(f: { leg?: { segments?: { flightNumber?: string }[] }; primaryAirline?: string }): string;

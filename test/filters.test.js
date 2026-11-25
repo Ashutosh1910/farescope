@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { facets, applyFilters, emptyFilters, sortFlights, windowOf, sortSummary } from '../public/js/filters.js';
-import { duration, money, dayDiff } from '../public/js/format.js';
+import { facets, applyFilters, emptyFilters, sortFlights, windowOf, sortSummary } from '../src/lib/filters.js';
+import { duration, money, dayDiff } from '../src/lib/format.js';
 
 const mk = (id, price, dur, stops, dep, airline, extra = {}) => ({
   id, price, isBest: false, airlines: [airline], primaryAirline: airline, separateTickets: false,

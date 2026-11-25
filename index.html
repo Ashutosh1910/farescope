@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FareScope — flight price search</title>
+    <meta name="description" content="Personal flight price search: live Google Flights fares, cheap-date calendar, every seller compared, and honest fee-inclusive totals." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230d9488'/%3E%3Cpath d='M8 19.5l16-6.5-5.5 11-2.6-4.6z' fill='%23fff'/%3E%3C/svg%3E" />
+    <script>
+      // Apply the saved theme before paint to avoid a flash.
+      try {
+        const t = localStorage.getItem('fs:theme');
+        const dark = t === 'dark' || ((!t || t === 'system') && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

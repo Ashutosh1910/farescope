@@ -7,14 +7,18 @@ services:
     runtime: node
     plan: free
     region: singapore
-    # Also records the commit so /healthz can report which version is live.
-    buildCommand: npm ci --omit=dev && (git rev-parse --short HEAD > .build-commit || true)
+    # Installs build tools too (Vite, Tailwind, TypeScript), builds the React app into dist/,
+    # and records the commit so /healthz can report which version is live.
+    buildCommand: npm ci --include=dev && npm run build && (git rev-parse --short HEAD > .build-commit || true)
     startCommand: npm start
     healthCheckPath: /healthz
     autoDeployTrigger: "off"
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # Fail the health check (so Render keeps the old version) if the web app wasn't built.
+      - key: REQUIRE_WEB
+        value: "1"
       # Secrets: Render asks for these when you create the Blueprint. Never commit them.
       - key: SERPAPI_KEY
         sync: false
