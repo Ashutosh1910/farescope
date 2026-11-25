@@ -48,7 +48,8 @@ test('APP_PASSWORD protects pages and API but not /healthz', async (t) => {
   assert.equal((await fetch(`${base}/`)).status, 401);
   assert.equal((await fetch(`${base}/api/status`, auth('wrong'))).status, 401);
   assert.equal((await fetch(`${base}/api/status`, auth('s3cret'))).status, 200);
-  assert.equal((await fetch(`${base}/`, auth('s3cret'))).status, 200);
+  // 200 once the web app is built, 503 "not built yet" before; either way the password was accepted.
+  assert.ok([200, 503].includes((await fetch(`${base}/`, auth('s3cret'))).status));
 });
 
 test('REQUIRE_WEB makes /healthz fail when the web app is missing', async (t) => {
